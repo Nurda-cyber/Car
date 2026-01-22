@@ -6,8 +6,11 @@ const sequelize = require('./config/database');
 const User = require('./models/User');
 const Car = require('./models/Car');
 const Favorite = require('./models/Favorite');
+const Cart = require('./models/Cart');
+const PurchaseHistory = require('./models/PurchaseHistory');
 const createDatabaseIfNotExists = require('./utils/createDatabase');
 const addRoleColumn = require('./utils/addRoleColumn');
+const ensureBalance = require('./utils/ensureBalance');
 
 dotenv.config();
 
@@ -24,12 +27,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/cars', require('./routes/cars'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/cart', require('./routes/cart'));
 
 // Настройка связей между моделями
 User.hasMany(Favorite, { foreignKey: 'userId', as: 'favorites' });
 Favorite.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Car.hasMany(Favorite, { foreignKey: 'carId', as: 'favorites' });
 Favorite.belongsTo(Car, { foreignKey: 'carId', as: 'car' });
+User.hasMany(Cart, { foreignKey: 'userId', as: 'carts' });
+Cart.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Car.hasMany(Cart, { foreignKey: 'carId', as: 'carts' });
+Cart.belongsTo(Car, { foreignKey: 'carId', as: 'car' });
+User.hasMany(PurchaseHistory, { foreignKey: 'userId', as: 'purchases' });
+PurchaseHistory.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Car.hasMany(PurchaseHistory, { foreignKey: 'carId', as: 'purchases' });
+PurchaseHistory.belongsTo(Car, { foreignKey: 'carId', as: 'car' });
 
 // PostgreSQL connection
 const connectDB = async () => {
@@ -47,6 +59,13 @@ const connectDB = async () => {
     } catch (error) {
       // Игнорируем ошибку, если столбец уже существует или таблица еще не создана
       console.log('Проверка столбца role завершена');
+    }
+
+    // Убеждаемся, что у пользователей есть баланс для покупок (NULL/0 → 5 000 000)
+    try {
+      await ensureBalance();
+    } catch (error) {
+      console.log('Проверка баланса завершена:', error.message);
     }
 
     // Синхронизация моделей с базой данных (создание таблиц если их нет, добавление новых столбцов)

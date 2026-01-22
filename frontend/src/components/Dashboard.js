@@ -4,12 +4,22 @@ import AuthContext from '../context/AuthContext';
 import CarsList from './CarsList';
 import AdminPanel from './AdminPanel';
 import Profile from './Profile';
+import Cart from './Cart';
+import Balance from './Balance';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, fetchUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.role === 'admin' ? 'admin' : 'cars');
+
+  // Обновляем данные пользователя при переключении на вкладки баланса или корзины
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'balance' || tab === 'cart') {
+      fetchUser(); // Обновляем баланс для актуальной кнопки «Купить»
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -21,10 +31,6 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div className="user-info-header">
           <h1>CarPro</h1>
-          <div className="user-details">
-            <span><strong>{user?.name}</strong></span>
-            <span className="user-role">{user?.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}</span>
-          </div>
         </div>
         <div className="header-actions">
           <button
@@ -42,16 +48,28 @@ const Dashboard = () => {
       <div className="tabs">
         <button
           className={`tab ${activeTab === 'cars' ? 'active' : ''}`}
-          onClick={() => setActiveTab('cars')}
+          onClick={() => handleTabChange('cars')}
         >
-          Каталог
+          🚗 Каталог
+        </button>
+        <button
+          className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
+          onClick={() => handleTabChange('cart')}
+        >
+          🛒 Корзина
+        </button>
+        <button
+          className={`tab ${activeTab === 'balance' ? 'active' : ''}`}
+          onClick={() => handleTabChange('balance')}
+        >
+          💰 Баланс
         </button>
         {user?.role === 'admin' && (
           <button
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => setActiveTab('admin')}
+            onClick={() => handleTabChange('admin')}
           >
-            Админ-панель
+            ⚙️ Админ-панель
           </button>
         )}
       </div>
@@ -59,6 +77,10 @@ const Dashboard = () => {
       <div className="dashboard-content">
         {activeTab === 'profile' ? (
           <Profile />
+        ) : activeTab === 'cart' ? (
+          <Cart />
+        ) : activeTab === 'balance' ? (
+          <Balance onNavigate={handleTabChange} />
         ) : activeTab === 'admin' && user?.role === 'admin' ? (
           <AdminPanel />
         ) : (

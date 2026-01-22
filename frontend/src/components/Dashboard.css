@@ -1,119 +1,183 @@
 .dashboard-container {
   width: 100%;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: transparent;
 }
 
 .dashboard-header {
-  background: white;
-  padding: 20px 40px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  padding: 16px 32px;
+  box-shadow: var(--shadow-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
 .user-info-header h1 {
   margin: 0;
-  color: #333;
-  font-size: 28px;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .user-details {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
 .user-details span {
-  color: #666;
-  font-size: 14px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .user-role {
   padding: 4px 12px;
-  background: #e9ecef;
-  border-radius: 12px;
-  font-size: 12px;
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .btn-profile {
   padding: 10px 20px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-profile:hover {
-  background: #5a6268;
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
 }
 
 .btn-profile.active {
-  background: #007bff;
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
 }
 
 .btn-profile.active:hover {
-  background: #0056b3;
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
 .btn-logout {
   padding: 10px 20px;
-  background: #dc3545;
+  background: var(--color-danger);
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-logout:hover {
-  background: #c82333;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-logout:active {
+  transform: translateY(0);
 }
 
 .tabs {
   display: flex;
-  gap: 10px;
-  padding: 0 40px;
-  margin-bottom: 20px;
+  gap: 4px;
+  padding: 0 32px;
+  margin-bottom: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
 }
 
 .tab {
-  padding: 10px 20px;
-  background: white;
+  padding: 14px 20px;
+  background: transparent;
   border: none;
-  border-radius: 5px 5px 0 0;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
-  color: #666;
+  transition: all var(--transition);
+  color: var(--color-text-muted);
+  position: relative;
+  white-space: nowrap;
 }
 
 .tab:hover {
-  background: #f8f9fa;
+  color: var(--color-text);
+  background: var(--color-bg-subtle);
 }
 
 .tab.active {
-  background: white;
-  color: #007bff;
-  border-bottom: 3px solid #007bff;
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px 2px 0 0;
 }
 
 .dashboard-content {
-  padding: 0 20px;
+  padding: 24px 32px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .user-info-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .tabs {
+    padding: 0 16px;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 0.875rem;
+  }
+
+  .dashboard-content {
+    padding: 16px;
+  }
 }

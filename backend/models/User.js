@@ -47,6 +47,28 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user',
     allowNull: false
+  },
+  balance: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 5000000.00,
+    allowNull: false,
+    validate: {
+      min: 0
+    }
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  bankCard: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      len: {
+        args: [16, 19],
+        msg: 'Номер карты должен содержать от 16 до 19 цифр'
+      }
+    }
   }
 }, {
   tableName: 'users',

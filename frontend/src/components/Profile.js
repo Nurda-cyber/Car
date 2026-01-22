@@ -6,25 +6,35 @@ import './Profile.css';
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [favoritesList, setFavoritesList] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [purchaseHistory, setPurchaseHistory] = useState([]);
+  const [purchasesCount, setPurchasesCount] = useState(0);
+  const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    bankCard: '',
+    city: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchFavoritesCount();
+    fetchPurchaseHistory();
     if (user) {
       setFormData({
         name: user.name || '',
         email: user.email || '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        bankCard: user.bankCard || '',
+        city: user.city || ''
       });
     }
   }, [user]);
@@ -33,18 +43,57 @@ const Profile = () => {
     try {
       const response = await axios.get('/cars/favorites/list');
       setFavoritesCount(response.data.length);
+      setFavoritesList(response.data);
     } catch (error) {
       console.error('Ошибка загрузки избранного:', error);
       setFavoritesCount(0);
+      setFavoritesList([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPurchaseHistory = async () => {
+    try {
+      const response = await axios.get('/auth/purchase-history');
+      setPurchaseHistory(response.data);
+      setPurchasesCount(response.data.length);
+    } catch (error) {
+      console.error('Ошибка загрузки истории покупок:', error);
+      setPurchaseHistory([]);
+      setPurchasesCount(0);
+    }
+  };
+
+  const handleFavoritesClick = () => {
+    setShowFavorites(!showFavorites);
+    if (!showFavorites) {
+      fetchFavoritesCount();
+    }
+  };
+
+  const handleHistoryClick = () => {
+    setShowHistory(!showHistory);
+    if (!showHistory) {
+      fetchPurchaseHistory();
+    }
+  };
+
+  const removeFromFavorites = async (carId) => {
+    try {
+      await axios.delete(`/cars/${carId}/favorite`);
+      setFavoritesList(favoritesList.filter(car => car.id !== carId));
+      setFavoritesCount(favoritesCount - 1);
+    } catch (error) {
+      console.error('Ошибка удаления из избранного:', error);
+      alert(error.response?.data?.message || 'Ошибка удаления из избранного');
     }
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Не указано';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
+    return date.toLocaleDateString('kk-KZ', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -92,6 +141,20 @@ const Profile = () => {
         updateData.password = formData.password;
       }
 
+      // Обработка банковской карты - убираем пробелы только один раз
+      if (formData.bankCard !== undefined) {
+        const cardNumber = formData.bankCard.replace(/\s/g, ''); // Убираем пробелы
+        if (cardNumber && (cardNumber.length < 16 || cardNumber.length > 19)) {
+          setError('Номер карты должен содержать от 16 до 19 цифр');
+          return;
+        }
+        updateData.bankCard = cardNumber || '';
+      }
+
+      if (formData.city !== undefined) {
+        updateData.city = formData.city || '';
+      }
+
       const response = await axios.put('/auth/profile', updateData);
       updateUser(response.data.user);
       setSuccess('Профиль успешно обновлен');
@@ -112,7 +175,9 @@ const Profile = () => {
       name: user?.name || '',
       email: user?.email || '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      bankCard: user?.bankCard || '',
+      city: user?.city || ''
     });
     setError('');
     setSuccess('');
@@ -204,6 +269,65 @@ const Profile = () => {
                     </div>
                   )}
 
+                  <div className="form-group">
+                    <label htmlFor="bankCard">Банковская карта</label>
+                    <input
+                      type="text"
+                      id="bankCard"
+                      name="bankCard"
+                      value={formData.bankCard}
+                      onChange={(e) => {
+                        // Форматирование номера карты (группы по 4 цифры)
+                        const value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                        const formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+                        setFormData(prev => ({ ...prev, bankCard: formatted }));
+                        setError('');
+                        setSuccess('');
+                      }}
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                    />
+                    <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                      Введите номер карты (16-19 цифр)
+                    </small>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="city">Город</label>
+                    <select
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="form-select"
+                    >
+                      <option value="">Выберите город</option>
+                      <option value="Алматы">Алматы</option>
+                      <option value="Астана">Астана</option>
+                      <option value="Шымкент">Шымкент</option>
+                      <option value="Караганда">Караганда</option>
+                      <option value="Актобе">Актобе</option>
+                      <option value="Тараз">Тараз</option>
+                      <option value="Павлодар">Павлодар</option>
+                      <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+                      <option value="Семей">Семей</option>
+                      <option value="Атырау">Атырау</option>
+                      <option value="Кызылорда">Кызылорда</option>
+                      <option value="Уральск">Уральск</option>
+                      <option value="Костанай">Костанай</option>
+                      <option value="Петропавловск">Петропавловск</option>
+                      <option value="Актау">Актау</option>
+                      <option value="Темиртау">Темиртау</option>
+                      <option value="Туркестан">Туркестан</option>
+                      <option value="Кокшетау">Кокшетау</option>
+                      <option value="Экибастуз">Экибастуз</option>
+                      <option value="Рудный">Рудный</option>
+                    </select>
+                    <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                      Выберите город Казахстана для расчета расстояния до автомобилей
+                    </small>
+                  </div>
+
                   <div className="form-actions">
                     <button type="submit" className="btn-save">
                       Сохранить
@@ -229,6 +353,20 @@ const Profile = () => {
                       {user?.role === 'admin' ? 'Администратор' : 'Пользователь'}
                     </span>
                   </div>
+                  {user?.bankCard && (
+                    <div className="info-item">
+                      <span className="info-label">Банковская карта:</span>
+                      <span className="info-value bank-card-value">
+                        {user.bankCard.replace(/(.{4})/g, '$1 ').trim()}
+                      </span>
+                    </div>
+                  )}
+                  {user?.city && (
+                    <div className="info-item">
+                      <span className="info-label">Город:</span>
+                      <span className="info-value city-value">📍 {user.city}</span>
+                    </div>
+                  )}
                   {user?.createdAt && (
                     <div className="info-item">
                       <span className="info-label">Дата регистрации:</span>
@@ -242,11 +380,20 @@ const Profile = () => {
             <div className="info-section">
               <h2>Статистика</h2>
               <div className="stats-grid">
-                <div className="stat-card">
+                <div className="stat-card stat-card-clickable" onClick={handleFavoritesClick}>
                   <div className="stat-icon">❤️</div>
                   <div className="stat-info">
                     <div className="stat-value">{loading ? '...' : favoritesCount}</div>
                     <div className="stat-label">Избранных автомобилей</div>
+                    <div className="stat-hint">Нажмите, чтобы посмотреть</div>
+                  </div>
+                </div>
+                <div className="stat-card stat-card-clickable" onClick={handleHistoryClick}>
+                  <div className="stat-icon">🛒</div>
+                  <div className="stat-info">
+                    <div className="stat-value">{purchasesCount}</div>
+                    <div className="stat-label">Купленных автомобилей</div>
+                    <div className="stat-hint">Нажмите, чтобы посмотреть</div>
                   </div>
                 </div>
                 <div className="stat-card">
@@ -265,6 +412,110 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {showFavorites && (
+        <div className="favorites-modal">
+          <div className="favorites-modal-content">
+            <div className="favorites-modal-header">
+              <h2>❤️ Избранные автомобили</h2>
+              <button className="favorites-modal-close" onClick={() => setShowFavorites(false)}>×</button>
+            </div>
+            <div className="favorites-list">
+              {favoritesList.length === 0 ? (
+                <div className="favorites-empty">
+                  <p>У вас пока нет избранных автомобилей</p>
+                </div>
+              ) : (
+                <div className="favorites-grid">
+                  {favoritesList.map(car => (
+                    <div key={car.id} className="favorite-car-card">
+                      <div className="favorite-car-image">
+                        {car.photos && car.photos.length > 0 ? (
+                          <img 
+                            src={`http://localhost:5000${car.photos[0]}`} 
+                            alt={`${car.brand} ${car.model}`} 
+                          />
+                        ) : (
+                          <div className="no-image">Нет фото</div>
+                        )}
+                        <button
+                          className="favorite-remove-btn"
+                          onClick={() => removeFromFavorites(car.id)}
+                          title="Удалить из избранного"
+                        >
+                          ❌
+                        </button>
+                      </div>
+                      <div className="favorite-car-info">
+                        <h3>{car.brand} {car.model}</h3>
+                        <p className="favorite-car-year">{car.year} год</p>
+                        <p className="favorite-car-price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</p>
+                        {car.mileage && (
+                          <p className="favorite-car-mileage">Пробег: {car.mileage.toLocaleString('kk-KZ')} км</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showHistory && (
+        <div className="favorites-modal">
+          <div className="favorites-modal-content">
+            <div className="favorites-modal-header">
+              <h2>🛒 История покупок</h2>
+              <button className="favorites-modal-close" onClick={() => setShowHistory(false)}>×</button>
+            </div>
+            <div className="favorites-list">
+              {purchaseHistory.length === 0 ? (
+                <div className="favorites-empty">
+                  <p>У вас пока нет покупок</p>
+                </div>
+              ) : (
+                <div className="favorites-grid">
+                  {purchaseHistory.map(purchase => (
+                    <div key={purchase.id} className="favorite-car-card">
+                      <div className="favorite-car-image">
+                        {purchase.car && purchase.car.photos && purchase.car.photos.length > 0 ? (
+                          <img 
+                            src={`http://localhost:5000${purchase.car.photos[0]}`} 
+                            alt={`${purchase.car.brand} ${purchase.car.model}`} 
+                          />
+                        ) : (
+                          <div className="no-image">Нет фото</div>
+                        )}
+                        <div className="purchase-badge">✓ Куплено</div>
+                      </div>
+                      <div className="favorite-car-info">
+                        {purchase.car ? (
+                          <>
+                            <h3>{purchase.car.brand} {purchase.car.model}</h3>
+                            <p className="favorite-car-year">{purchase.car.year} год</p>
+                            <p className="favorite-car-price">{parseInt(purchase.price).toLocaleString('kk-KZ')} ₸</p>
+                            {purchase.car.mileage && (
+                              <p className="favorite-car-mileage">Пробег: {purchase.car.mileage.toLocaleString('kk-KZ')} км</p>
+                            )}
+                            {purchase.car.city && (
+                              <p className="favorite-car-city">📍 {purchase.car.city}</p>
+                            )}
+                            <p className="purchase-date">Дата покупки: {formatDate(purchase.purchaseDate)}</p>
+                          </>
+                        ) : (
+                          <p>Автомобиль удален</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

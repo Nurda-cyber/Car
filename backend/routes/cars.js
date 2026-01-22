@@ -2,7 +2,9 @@ const express = require('express');
 const { Op } = require('sequelize');
 const Car = require('../models/Car');
 const Favorite = require('../models/Favorite');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { calculateDistanceFromCity } = require('../utils/calculateDistance');
 
 const router = express.Router();
 
@@ -19,7 +21,9 @@ router.get('/', auth, async (req, res) => {
       transmission,
       fuelType,
       status,
-      search
+      search,
+      city,
+      sortBy
     } = req.query;
 
     const where = {
@@ -67,6 +71,11 @@ router.get('/', auth, async (req, res) => {
       where.fuelType = fuelType;
     }
 
+    // Фильтр по городу
+    if (city) {
+      where.city = { [Op.iLike]: `%${city}%` };
+    }
+
     // Поиск по названию (марка или модель)
     if (search) {
       where[Op.or] = [
@@ -75,10 +84,43 @@ router.get('/', auth, async (req, res) => {
       ];
     }
 
+    // Определение сортировки
+    let orderBy = [['createdAt', 'DESC']];
+    if (sortBy === 'city') {
+      orderBy = [['city', 'ASC'], ['createdAt', 'DESC']];
+    } else if (sortBy === 'price_asc') {
+      orderBy = [['price', 'ASC']];
+    } else if (sortBy === 'price_desc') {
+      orderBy = [['price', 'DESC']];
+    } else if (sortBy === 'year_desc') {
+      orderBy = [['year', 'DESC']];
+    } else if (sortBy === 'year_asc') {
+      orderBy = [['year', 'ASC']];
+    }
+
     const cars = await Car.findAll({
       where,
-      order: [['createdAt', 'DESC']]
+      order: orderBy
     });
+
+    // Если пользователь указал город, добавляем расстояние до каждого автомобиля
+    if (req.user) {
+      const user = await User.findByPk(req.user.id);
+      if (user && user.city) {
+        const carsWithDistance = cars.map(car => {
+          const distance = calculateDistanceFromCity(
+            user.city,
+            car.latitude,
+            car.longitude
+          );
+          return {
+            ...car.toJSON(),
+            distance: distance
+          };
+        });
+        return res.json(carsWithDistance);
+      }
+    }
 
     res.json(cars);
   } catch (error) {

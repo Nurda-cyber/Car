@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const Car = require('../models/Car');
 const admin = require('../middleware/admin');
+const { getCityCoordinates } = require('../utils/calculateDistance');
 
 const router = express.Router();
 
@@ -52,7 +53,8 @@ router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
       transmission,
       fuelType,
       description,
-      status
+      status,
+      city
     } = req.body;
 
     // Валидация обязательных полей
@@ -62,6 +64,17 @@ router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
 
     // Обработка загруженных фото
     const photos = req.files ? req.files.map(file => `/uploads/cars/${file.filename}`) : [];
+
+    // Получаем координаты города, если указан
+    let latitude = null;
+    let longitude = null;
+    if (city) {
+      const coords = getCityCoordinates(city);
+      if (coords) {
+        latitude = coords.lat;
+        longitude = coords.lon;
+      }
+    }
 
     const car = await Car.create({
       brand,
@@ -76,7 +89,11 @@ router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
       description: description || null,
       photos,
       status: status || 'pending',
-      isActive: true
+      isActive: true,
+      city: city || null,
+      latitude: latitude,
+      longitude: longitude,
+      location: city || null
     });
 
     res.status(201).json({ message: 'Автомобиль успешно добавлен', car });
@@ -107,7 +124,8 @@ router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
       transmission,
       fuelType,
       description,
-      status
+      status,
+      city
     } = req.body;
 
     // Обновление полей
@@ -122,6 +140,27 @@ router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
     if (fuelType) car.fuelType = fuelType;
     if (description !== undefined) car.description = description;
     if (status) car.status = status;
+    
+    // Обновление города и координат
+    if (city !== undefined) {
+      car.city = city || null;
+      car.location = city || null;
+      
+      // Обновляем координаты, если указан город
+      if (city) {
+        const coords = getCityCoordinates(city);
+        if (coords) {
+          car.latitude = coords.lat;
+          car.longitude = coords.lon;
+        } else {
+          car.latitude = null;
+          car.longitude = null;
+        }
+      } else {
+        car.latitude = null;
+        car.longitude = null;
+      }
+    }
 
     // Добавление новых фото
     if (req.files && req.files.length > 0) {

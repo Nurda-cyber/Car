@@ -1,54 +1,64 @@
 .admin-panel-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0;
 }
 
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .admin-header h1 {
-  color: #333;
+  color: var(--color-text);
   margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .btn-add {
   padding: 12px 24px;
-  background: #28a745;
+  background: var(--color-success);
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all var(--transition);
 }
 
 .btn-add:hover {
-  background: #218838;
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
 }
 
 .add-car-form {
-  background: white;
-  border-radius: 10px;
-  padding: 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
 }
 
 .add-car-form h2 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
   margin-bottom: 20px;
 }
 
@@ -58,25 +68,28 @@
 }
 
 .form-grid label {
-  margin-bottom: 5px;
-  color: #333;
-  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .form-grid input:focus,
 .form-grid select:focus,
 .form-grid textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-muted);
 }
 
 .existing-photos {
@@ -86,69 +99,78 @@
 .existing-photos label {
   display: block;
   margin-bottom: 10px;
-  color: #333;
-  font-weight: 500;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
 }
 
 .photo-item {
   position: relative;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  background: var(--color-bg-subtle);
 }
 
 .photo-item img {
   width: 100%;
-  height: 150px;
+  height: 120px;
   object-fit: cover;
 }
 
 .btn-delete-photo {
   width: 100%;
-  padding: 8px;
-  background: #dc3545;
+  padding: 8px 12px;
+  background: var(--color-danger);
   color: white;
   border: none;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: filter var(--transition);
 }
 
 .btn-delete-photo:hover {
-  background: #c82333;
+  filter: brightness(1.1);
 }
 
 .btn-submit {
-  padding: 12px 30px;
-  background: #007bff;
+  padding: 12px 28px;
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all var(--transition);
 }
 
 .btn-submit:hover {
-  background: #0056b3;
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
 }
 
 .admin-cars-list {
-  background: white;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
 }
 
 .admin-cars-list h2 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .cars-table {
@@ -158,93 +180,113 @@
 
 .cars-table th,
 .cars-table td {
-  padding: 12px;
+  padding: 14px 16px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .cars-table th {
-  background: #f8f9fa;
+  background: var(--color-bg-subtle);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .cars-table tr:hover {
-  background: #f8f9fa;
+  background: var(--color-bg-subtle);
 }
 
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 600;
   display: inline-block;
 }
 
 .status-pending {
-  background: #ffc107;
-  color: #000;
+  background: var(--color-warning-muted);
+  color: var(--color-warning);
 }
 
 .status-active {
-  background: #28a745;
-  color: white;
+  background: var(--color-success-muted);
+  color: var(--color-success);
 }
 
 .status-sold {
-  background: #6c757d;
+  background: var(--color-text-muted);
   color: white;
 }
 
 .status-disabled {
-  background: #dc3545;
-  color: white;
+  background: var(--color-danger-muted);
+  color: var(--color-danger);
 }
 
 .action-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn-edit,
 .btn-toggle {
-  padding: 6px 12px;
+  padding: 8px 14px;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all var(--transition);
 }
 
 .btn-edit {
-  background: #007bff;
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-edit:hover {
-  background: #0056b3;
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-toggle {
-  background: #6c757d;
+  background: var(--color-text-muted);
   color: white;
 }
 
 .btn-toggle:hover {
-  background: #5a6268;
+  filter: brightness(1.1);
 }
 
 .btn-toggle.active {
-  background: #dc3545;
+  background: var(--color-danger);
 }
 
 .btn-toggle.active:hover {
-  background: #c82333;
+  filter: brightness(1.1);
 }
 
-.loading {
+.admin-panel-container .loading {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-size: 18px;
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .admin-cars-list {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .cars-table th,
+  .cars-table td {
+    padding: 10px 12px;
+    font-size: 0.875rem;
+  }
 }

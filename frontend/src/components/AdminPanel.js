@@ -19,6 +19,7 @@ const AdminPanel = () => {
     fuelType: '',
     description: '',
     status: 'pending',
+    city: '',
     photos: []
   });
 
@@ -103,6 +104,7 @@ const AdminPanel = () => {
       fuelType: car.fuelType || '',
       description: car.description || '',
       status: car.status,
+      city: car.city || '',
       photos: []
     });
     setShowAddForm(true);
@@ -141,6 +143,7 @@ const AdminPanel = () => {
       fuelType: '',
       description: '',
       status: 'pending',
+      city: '',
       photos: []
     });
   };
@@ -285,6 +288,41 @@ const AdminPanel = () => {
                   <option value="disabled">Отключен</option>
                 </select>
               </div>
+              <div>
+                <label>Город *</label>
+                <select
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  required
+                  className="form-select-city"
+                >
+                  <option value="">Выберите город</option>
+                  <option value="Алматы">Алматы</option>
+                  <option value="Астана">Астана</option>
+                  <option value="Шымкент">Шымкент</option>
+                  <option value="Караганда">Караганда</option>
+                  <option value="Актобе">Актобе</option>
+                  <option value="Тараз">Тараз</option>
+                  <option value="Павлодар">Павлодар</option>
+                  <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+                  <option value="Семей">Семей</option>
+                  <option value="Атырау">Атырау</option>
+                  <option value="Кызылорда">Кызылорда</option>
+                  <option value="Уральск">Уральск</option>
+                  <option value="Костанай">Костанай</option>
+                  <option value="Петропавловск">Петропавловск</option>
+                  <option value="Актау">Актау</option>
+                  <option value="Темиртау">Темиртау</option>
+                  <option value="Туркестан">Туркестан</option>
+                  <option value="Кокшетау">Кокшетау</option>
+                  <option value="Экибастуз">Экибастуз</option>
+                  <option value="Рудный">Рудный</option>
+                </select>
+                <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                  Координаты будут установлены автоматически
+                </small>
+              </div>
             </div>
             <div>
               <label>Описание</label>
@@ -342,6 +380,7 @@ const AdminPanel = () => {
                 <th>Марка/Модель</th>
                 <th>Год</th>
                 <th>Цена</th>
+                <th>Город</th>
                 <th>Статус</th>
                 <th>Активен</th>
                 <th>Фото</th>
@@ -354,7 +393,8 @@ const AdminPanel = () => {
                   <td>{car.id}</td>
                   <td>{car.brand} {car.model}</td>
                   <td>{car.year}</td>
-                  <td>{parseInt(car.price).toLocaleString()} ₽</td>
+                  <td>{parseInt(car.price).toLocaleString('kk-KZ')} ₸</td>
+                  <td>{car.city || 'Не указан'}</td>
                   <td>
                     <span className={`status-badge status-${car.status}`}>
                       {getStatusLabel(car.status)}

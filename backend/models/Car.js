@@ -82,6 +82,22 @@ const Car = sequelize.define('Car', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
     allowNull: false
+  },
+  latitude: {
+    type: DataTypes.DECIMAL(10, 8),
+    allowNull: true
+  },
+  longitude: {
+    type: DataTypes.DECIMAL(11, 8),
+    allowNull: true
+  },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   tableName: 'cars',
