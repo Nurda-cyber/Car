@@ -1,64 +1,119 @@
 .dashboard-container {
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+  min-height: 100vh;
+  background: #f5f5f5;
 }
 
-.dashboard-card {
+.dashboard-header {
   background: white;
-  border-radius: 10px;
-  padding: 40px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  text-align: center;
+  padding: 20px 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.dashboard-card h1 {
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.user-info-header h1 {
+  margin: 0;
   color: #333;
-  margin-bottom: 30px;
-  font-size: 32px;
+  font-size: 28px;
 }
 
-.user-info {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 30px;
-  text-align: left;
+.user-details {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 5px;
 }
 
-.user-info p {
-  margin-bottom: 15px;
-  color: #555;
-  font-size: 16px;
+.user-details span {
+  color: #666;
+  font-size: 14px;
 }
 
-.user-info p:last-child {
-  margin-bottom: 0;
+.user-role {
+  padding: 4px 12px;
+  background: #e9ecef;
+  border-radius: 12px;
+  font-size: 12px;
 }
 
-.user-info strong {
-  color: #333;
-  margin-right: 10px;
+.btn-profile {
+  padding: 10px 20px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-profile:hover {
+  background: #5a6268;
+}
+
+.btn-profile.active {
+  background: #007bff;
+}
+
+.btn-profile.active:hover {
+  background: #0056b3;
 }
 
 .btn-logout {
-  width: 100%;
-  padding: 12px;
+  padding: 10px 20px;
   background: #dc3545;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.3s;
 }
 
 .btn-logout:hover {
   background: #c82333;
-  transform: translateY(-2px);
 }
 
-.btn-logout:active {
-  transform: translateY(0);
+.tabs {
+  display: flex;
+  gap: 10px;
+  padding: 0 40px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: white;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+  color: #666;
+}
+
+.tab:hover {
+  background: #f8f9fa;
+}
+
+.tab.active {
+  background: white;
+  color: #007bff;
+  border-bottom: 3px solid #007bff;
+}
+
+.dashboard-content {
+  padding: 0 20px;
 }

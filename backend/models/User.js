@@ -42,6 +42,11 @@ const User = sequelize.define('User', {
         msg: 'Пожалуйста, укажите пароль'
       }
     }
+  },
+  role: {
+    type: DataTypes.ENUM('user', 'admin'),
+    defaultValue: 'user',
+    allowNull: false
   }
 }, {
   tableName: 'users',

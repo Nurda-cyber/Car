@@ -1,9 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const sequelize = require('./config/database');
 const User = require('./models/User');
+const Car = require('./models/Car');
+const Favorite = require('./models/Favorite');
 const createDatabaseIfNotExists = require('./utils/createDatabase');
+const addRoleColumn = require('./utils/addRoleColumn');
 
 dotenv.config();
 
@@ -13,8 +17,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Статические файлы для загруженных изображений
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/cars', require('./routes/cars'));
+app.use('/api/admin', require('./routes/admin'));
+
+// Настройка связей между моделями
+User.hasMany(Favorite, { foreignKey: 'userId', as: 'favorites' });
+Favorite.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Car.hasMany(Favorite, { foreignKey: 'carId', as: 'favorites' });
+Favorite.belongsTo(Car, { foreignKey: 'carId', as: 'car' });
 
 // PostgreSQL connection
 const connectDB = async () => {
@@ -26,8 +41,16 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('PostgreSQL подключен');
 
-    // Синхронизация моделей с базой данных (создание таблиц если их нет)
-    await sequelize.sync({ alter: false });
+    // Добавляем столбец role если его нет (для существующих таблиц)
+    try {
+      await addRoleColumn();
+    } catch (error) {
+      // Игнорируем ошибку, если столбец уже существует или таблица еще не создана
+      console.log('Проверка столбца role завершена');
+    }
+
+    // Синхронизация моделей с базой данных (создание таблиц если их нет, добавление новых столбцов)
+    await sequelize.sync({ alter: true });
     console.log('Модели синхронизированы с базой данных');
   } catch (error) {
     console.error('Ошибка подключения к PostgreSQL:', error.message);
