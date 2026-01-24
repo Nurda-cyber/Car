@@ -79,6 +79,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Неверный email или пароль' });
     }
 
+    // Проверяем, не удален ли аккаунт администратором
+    if (user.isDeleted) {
+      return res.status(403).json({ message: 'Ваш аккаунт был удален администратором' });
+    }
+
     // Проверка пароля
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {

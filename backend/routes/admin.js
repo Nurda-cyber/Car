@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Car = require('../models/Car');
+const User = require('../models/User');
 const admin = require('../middleware/admin');
 const { getCityCoordinates } = require('../utils/calculateDistance');
 
@@ -268,6 +269,63 @@ router.get('/cars/:id', admin, async (req, res) => {
   } catch (error) {
     console.error('Ошибка получения автомобиля:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+// Получить всех пользователей (для админа)
+router.get('/users', admin, async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'email', 'city', 'role', 'createdAt', 'isDeleted']
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error('Ошибка получения пользователей:', error);
+    res.status(500).json({ message: 'Ошибка сервера при получении пользователей' });
+  }
+});
+
+// Получить список администраторов
+router.get('/users/admins', admin, async (req, res) => {
+  try {
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: ['id', 'name', 'email', 'city', 'createdAt', 'isDeleted']
+    });
+
+    res.json(admins);
+  } catch (error) {
+    console.error('Ошибка получения администраторов:', error);
+    res.status(500).json({ message: 'Ошибка сервера при получении администраторов' });
+  }
+});
+
+// Пометить аккаунт пользователя как удаленный
+router.delete('/users/:id', admin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({ message: 'Нельзя удалить аккаунт администратора' });
+    }
+
+    if (user.isDeleted) {
+      return res.status(400).json({ message: 'Аккаунт пользователя уже помечен как удаленный' });
+    }
+
+    user.isDeleted = true;
+    await user.save();
+
+    res.json({ message: 'Аккаунт пользователя помечен как удаленный' });
+  } catch (error) {
+    console.error('Ошибка удаления пользователя:', error);
+    res.status(500).json({ message: 'Ошибка сервера при удалении пользователя' });
   }
 });
 

@@ -4,6 +4,7 @@ import './AdminPanel.css';
 
 const AdminPanel = () => {
   const [cars, setCars] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
@@ -25,6 +26,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     fetchCars();
+    fetchUsers();
   }, []);
 
   const fetchCars = async () => {
@@ -37,6 +39,16 @@ const AdminPanel = () => {
       alert('Ошибка загрузки автомобилей');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('/admin/users');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Ошибка загрузки пользователей:', error);
+      alert('Ошибка загрузки пользователей');
     }
   };
 
@@ -119,6 +131,20 @@ const AdminPanel = () => {
       alert('Ошибка переключения статуса');
     }
   };
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Удалить этого пользователя? Он больше не сможет войти в систему.')) {
+      return;
+    }
+    try {
+      await axios.delete(`/admin/users/${userId}`);
+      await fetchUsers();
+      alert('Пользователь помечен как удалённый');
+    } catch (error) {
+      console.error('Ошибка удаления пользователя:', error);
+      alert(error.response?.data?.message || 'Ошибка удаления пользователя');
+    }
+  };
+
 
   const handleDeletePhoto = async (carId, photoIndex) => {
     try {
@@ -424,6 +450,48 @@ const AdminPanel = () => {
           </table>
         </div>
       )}
+
+      {/* Управление пользователями */}
+      <div className="admin-cars-list" style={{ marginTop: '24px' }}>
+        <h2>Пользователи ({users.length})</h2>
+        <table className="cars-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Город</th>
+              <th>Роль</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
+                <td>{u.name}</td>
+                <td>{u.email}</td>
+                <td>{u.city || '—'}</td>
+                <td>{u.role === 'admin' ? 'Администратор' : 'Пользователь'}</td>
+                <td>{u.isDeleted ? 'Удалён' : 'Активен'}</td>
+                <td>
+                  <div className="action-buttons">
+                    {u.role !== 'admin' && !u.isDeleted && (
+                      <button
+                        onClick={() => handleDeleteUser(u.id)}
+                        className="btn-toggle active"
+                      >
+                        Удалить
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

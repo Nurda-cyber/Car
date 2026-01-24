@@ -18,6 +18,10 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ message: 'Пользователь не найден' });
     }
 
+    if (user.isDeleted) {
+      return res.status(403).json({ message: 'Ваш аккаунт был удален администратором' });
+    }
+
     req.user = user;
     next();
   } catch (error) {

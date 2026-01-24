@@ -48,6 +48,11 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
     allowNull: false
   },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
   balance: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 5000000.00,
