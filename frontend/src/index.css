@@ -42,6 +42,38 @@
   --transition-slow: 0.35s ease;
 }
 
+[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-bg-subtle: #1e293b;
+  --color-surface: #1e293b;
+  --color-surface-elevated: #334155;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+
+  --color-text: #f1f5f9;
+  --color-text-muted: #cbd5e1;
+  --color-text-subtle: #94a3b8;
+
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #38bdf8;
+  --color-primary-muted: rgba(14, 165, 233, 0.2);
+  --color-accent: #06b6d4;
+  --color-accent-muted: rgba(6, 182, 212, 0.2);
+
+  --color-success: #10b981;
+  --color-success-muted: rgba(16, 185, 129, 0.2);
+  --color-danger: #ef4444;
+  --color-danger-muted: rgba(239, 68, 68, 0.2);
+  --color-warning: #f59e0b;
+  --color-warning-muted: rgba(245, 158, 11, 0.2);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.3);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -68,6 +100,11 @@ body::before {
     radial-gradient(ellipse 60% 40% at 0% 80%, rgba(16, 185, 129, 0.05), transparent);
   pointer-events: none;
   z-index: 0;
+  transition: opacity var(--transition-slow);
+}
+
+[data-theme="dark"] body::before {
+  opacity: 0.3;
 }
 
 #root {

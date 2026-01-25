@@ -21,6 +21,28 @@
   align-items: center;
 }
 
+.btn-theme-toggle {
+  padding: 10px 16px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+}
+
+.btn-theme-toggle:hover {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
+  transform: scale(1.05);
+}
+
 .user-info-header h1 {
   margin: 0;
   color: var(--color-text);

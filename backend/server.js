@@ -42,6 +42,8 @@ User.hasMany(PurchaseHistory, { foreignKey: 'userId', as: 'purchases' });
 PurchaseHistory.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Car.hasMany(PurchaseHistory, { foreignKey: 'carId', as: 'purchases' });
 PurchaseHistory.belongsTo(Car, { foreignKey: 'carId', as: 'car' });
+User.hasMany(Car, { foreignKey: 'sellerId', as: 'soldCars' });
+Car.belongsTo(User, { foreignKey: 'sellerId', as: 'seller' });
 
 // PostgreSQL connection
 const connectDB = async () => {

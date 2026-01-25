@@ -98,6 +98,15 @@ const Car = sequelize.define('Car', {
   city: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  sellerId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'SET NULL'
   }
 }, {
   tableName: 'cars',

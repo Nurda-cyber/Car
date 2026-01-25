@@ -1,15 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import ThemeContext from '../context/ThemeContext';
 import CarsList from './CarsList';
 import AdminPanel from './AdminPanel';
 import Profile from './Profile';
 import Cart from './Cart';
 import Balance from './Balance';
+import SellCar from './SellCar';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout, fetchUser } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.role === 'admin' ? 'admin' : 'cars');
 
@@ -34,6 +37,13 @@ const Dashboard = () => {
         </div>
         <div className="header-actions">
           <button
+            className="btn-theme-toggle"
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'Переключить на темный режим' : 'Переключить на светлый режим'}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <button
             className={`btn-profile ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
@@ -51,6 +61,12 @@ const Dashboard = () => {
           onClick={() => handleTabChange('cars')}
         >
           🚗 Каталог
+        </button>
+        <button
+          className={`tab ${activeTab === 'sell' ? 'active' : ''}`}
+          onClick={() => handleTabChange('sell')}
+        >
+          🚙 Продать
         </button>
         <button
           className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
@@ -77,6 +93,8 @@ const Dashboard = () => {
       <div className="dashboard-content">
         {activeTab === 'profile' ? (
           <Profile />
+        ) : activeTab === 'sell' ? (
+          <SellCar />
         ) : activeTab === 'cart' ? (
           <Cart />
         ) : activeTab === 'balance' ? (

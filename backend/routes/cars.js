@@ -1,12 +1,46 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { Op } = require('sequelize');
 const Car = require('../models/Car');
 const Favorite = require('../models/Favorite');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
-const { calculateDistanceFromCity } = require('../utils/calculateDistance');
+const { calculateDistanceFromCity, getCityCoordinates } = require('../utils/calculateDistance');
 
 const router = express.Router();
+
+// Настройка multer для загрузки файлов
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads/cars');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'car-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Разрешены только изображения (jpeg, jpg, png, gif, webp)'));
+    }
+  }
+});
 
 // Получить все автомобили с фильтрацией (доступно всем авторизованным пользователям)
 router.get('/', auth, async (req, res) => {
@@ -231,6 +265,107 @@ router.get('/favorites/list', auth, async (req, res) => {
   } catch (error) {
     console.error('Ошибка получения избранного:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+// Продать автомобиль (создать объявление)
+router.post('/sell', auth, upload.array('photos', 10), async (req, res) => {
+  try {
+    const {
+      brand,
+      model,
+      year,
+      price,
+      mileage,
+      color,
+      engine,
+      transmission,
+      fuelType,
+      description,
+      city
+    } = req.body;
+
+    // Валидация обязательных полей
+    if (!brand || !model || !year || !price) {
+      return res.status(400).json({ message: 'Заполните все обязательные поля: марка, модель, год, цена' });
+    }
+
+    // Валидация года
+    const yearNum = parseInt(year);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
+      return res.status(400).json({ message: `Год должен быть от 1900 до ${currentYear + 1}` });
+    }
+
+    // Валидация цены
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      return res.status(400).json({ message: 'Цена должна быть положительным числом' });
+    }
+
+    // Валидация пробега
+    const mileageNum = mileage ? parseInt(mileage) : 0;
+    if (isNaN(mileageNum) || mileageNum < 0) {
+      return res.status(400).json({ message: 'Пробег должен быть неотрицательным числом' });
+    }
+
+    // Обработка загруженных фото
+    const photos = req.files ? req.files.map(file => `/uploads/cars/${file.filename}`) : [];
+
+    // Получаем координаты города, если указан
+    let latitude = null;
+    let longitude = null;
+    if (city) {
+      const coords = getCityCoordinates(city);
+      if (coords) {
+        latitude = coords.lat;
+        longitude = coords.lon;
+      }
+    }
+
+    // Создаем автомобиль
+    const car = await Car.create({
+      brand,
+      model,
+      year: yearNum,
+      price: priceNum,
+      mileage: mileageNum,
+      color: color || null,
+      engine: engine || null,
+      transmission: transmission || null,
+      fuelType: fuelType || null,
+      description: description || null,
+      photos,
+      status: 'pending', // Требует модерации
+      isActive: true,
+      city: city || null,
+      latitude: latitude,
+      longitude: longitude,
+      location: city || null,
+      sellerId: req.user.id // Сохраняем ID продавца
+    });
+
+    res.status(201).json({ 
+      message: 'Объявление о продаже автомобиля успешно создано и отправлено на модерацию', 
+      car 
+    });
+  } catch (error) {
+    console.error('Ошибка создания объявления о продаже:', error);
+    
+    // Удаляем загруженные файлы в случае ошибки
+    if (req.files && req.files.length > 0) {
+      req.files.forEach(file => {
+        const filePath = path.join(__dirname, '../uploads/cars', file.filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Ошибка сервера при создании объявления',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
