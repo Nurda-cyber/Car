@@ -107,6 +107,14 @@ const Car = sequelize.define('Car', {
       key: 'id'
     },
     onDelete: 'SET NULL'
+  },
+  views: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+    validate: {
+      min: 0
+    }
   }
 }, {
   tableName: 'cars',

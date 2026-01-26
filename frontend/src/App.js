@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import CarDetail from './components/CarDetail';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
@@ -22,6 +23,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/car/:id"
+                element={
+                  <PrivateRoute>
+                    <CarDetail />
                   </PrivateRoute>
                 }
               />

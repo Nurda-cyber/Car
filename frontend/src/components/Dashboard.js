@@ -8,6 +8,8 @@ import Profile from './Profile';
 import Cart from './Cart';
 import Balance from './Balance';
 import SellCar from './SellCar';
+import ChatList from './ChatList';
+import NotificationBell from './NotificationBell';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -36,6 +38,7 @@ const Dashboard = () => {
           <h1>CarPro</h1>
         </div>
         <div className="header-actions">
+          <NotificationBell />
           <button
             className="btn-theme-toggle"
             onClick={toggleTheme}
@@ -80,6 +83,12 @@ const Dashboard = () => {
         >
           💰 Баланс
         </button>
+        <button
+          className={`tab ${activeTab === 'chats' ? 'active' : ''}`}
+          onClick={() => handleTabChange('chats')}
+        >
+          💬 Чаты
+        </button>
         {user?.role === 'admin' && (
           <button
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
@@ -99,6 +108,8 @@ const Dashboard = () => {
           <Cart />
         ) : activeTab === 'balance' ? (
           <Balance onNavigate={handleTabChange} />
+        ) : activeTab === 'chats' ? (
+          <ChatList />
         ) : activeTab === 'admin' && user?.role === 'admin' ? (
           <AdminPanel />
         ) : (

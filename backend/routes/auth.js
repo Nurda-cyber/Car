@@ -233,4 +233,22 @@ router.get('/purchase-history', auth, async (req, res) => {
   }
 });
 
+// Получить информацию о пользователе по ID (публичная информация)
+router.get('/user/:id', auth, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      attributes: ['id', 'name', 'email', 'city', 'createdAt']
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Ошибка получения пользователя:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
 module.exports = router;

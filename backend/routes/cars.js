@@ -163,24 +163,64 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// Получить один автомобиль по ID
+// Получить один автомобиль по ID (должен быть после всех специфичных маршрутов)
 router.get('/:id', auth, async (req, res) => {
   try {
-    const car = await Car.findOne({
+    // Проверяем, что это не специальный маршрут
+    if (req.params.id === 'favorites' || req.params.id === 'sell') {
+      return res.status(404).json({ message: 'Маршрут не найден' });
+    }
+
+    const carId = parseInt(req.params.id);
+    
+    if (isNaN(carId) || carId <= 0) {
+      return res.status(400).json({ message: 'Неверный ID автомобиля' });
+    }
+
+    // Сначала ищем автомобиль без фильтра по isActive
+    let car = await Car.findOne({
       where: {
-        id: req.params.id,
-        isActive: true
-      }
+        id: carId
+      },
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'name', 'email', 'city']
+        }
+      ]
     });
 
     if (!car) {
+      console.log(`Автомобиль с ID ${carId} не найден в базе данных`);
       return res.status(404).json({ message: 'Автомобиль не найден' });
+    }
+
+    // Проверяем права доступа:
+    // - Владелец может видеть свой автомобиль в любом статусе
+    // - Другие пользователи могут видеть только активные автомобили
+    const isOwner = car.sellerId === req.user.id;
+    if (!isOwner && (!car.isActive || car.status !== 'active')) {
+      console.log(`Автомобиль ${carId} недоступен: isActive=${car.isActive}, status=${car.status}, isOwner=${isOwner}`);
+      return res.status(404).json({ 
+        message: 'Автомобиль не найден или недоступен',
+        details: process.env.NODE_ENV === 'development' ? `Статус: ${car.status}, Активен: ${car.isActive}` : undefined
+      });
+    }
+
+    // Увеличиваем счетчик просмотров только для активных автомобилей
+    if (car.isActive && car.status === 'active') {
+      car.views = (car.views || 0) + 1;
+      await car.save();
     }
 
     res.json(car);
   } catch (error) {
     console.error('Ошибка получения автомобиля:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ 
+      message: 'Ошибка сервера', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 });
 

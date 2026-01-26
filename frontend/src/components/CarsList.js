@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import './CarsList.css';
 
 const CarsList = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [cars, setCars] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -247,7 +249,7 @@ const CarsList = () => {
       ) : (
         <div className="cars-grid">
           {cars.map(car => (
-            <div key={car.id} className="car-card">
+            <div key={car.id} className="car-card" onClick={() => navigate(`/car/${car.id}`)}>
               <div className="car-image">
                 {car.photos && car.photos.length > 0 ? (
                   <img src={`http://localhost:5000${car.photos[0]}`} alt={`${car.brand} ${car.model}`} />
@@ -256,7 +258,10 @@ const CarsList = () => {
                 )}
                 <button
                   className={`favorite-btn ${favorites.includes(car.id) ? 'active' : ''}`}
-                  onClick={() => toggleFavorite(car.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(car.id);
+                  }}
                   title={favorites.includes(car.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
                 >
                   ❤️
@@ -266,6 +271,9 @@ const CarsList = () => {
                 <h3>{car.brand} {car.model}</h3>
                 <p className="car-year">{car.year} год</p>
                 <p className="car-price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</p>
+                {car.views !== undefined && car.views !== null && (
+                  <p className="car-views">👁️ Просмотров: {car.views.toLocaleString('kk-KZ')}</p>
+                )}
                 {car.city && (
                   <p className="car-city">📍 Город: {car.city}</p>
                 )}
@@ -288,7 +296,10 @@ const CarsList = () => {
                 )}
                 <button
                   className={`btn-add-to-cart ${cartItems.includes(car.id) ? 'in-cart' : ''}`}
-                  onClick={() => addToCart(car.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(car.id);
+                  }}
                   disabled={cartItems.includes(car.id) || car.status === 'sold'}
                   title={cartItems.includes(car.id) ? 'Уже в корзине' : car.status === 'sold' ? 'Автомобиль продан' : 'Добавить в корзину'}
                 >
