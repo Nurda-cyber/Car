@@ -1,21 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import io from 'socket.io-client';
+import AuthContext from '../context/AuthContext';
 import Chat from './Chat';
 import './ChatList.css';
 
 const ChatList = () => {
   const navigate = useNavigate();
+  const { user } = React.useContext(AuthContext);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [loading, setLoading] = useState(true);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     fetchChats();
     
+    // Инициализируем Socket.io для real-time обновлений
+    const token = localStorage.getItem('token');
+    if (token) {
+      const socket = io('http://localhost:5000', {
+        auth: { token },
+        transports: ['websocket', 'polling']
+      });
+
+      socket.on('connect', () => {
+        console.log('ChatList socket connected');
+      });
+
+      socket.on('new-message', (message) => {
+        // Обновляем список чатов при новом сообщении
+        setChats(prevChats => {
+          return prevChats.map(chat => {
+            // Если сообщение относится к этому чату
+            if (message.chatId === chat.id) {
+              // Обновляем счетчик непрочитанных, если сообщение не от текущего пользователя
+              if (message.senderId !== user?.id) {
+                return {
+                  ...chat,
+                  unreadCount: (chat.unreadCount || 0) + 1,
+                  lastMessageAt: message.createdAt
+                };
+              }
+            }
+            return chat;
+          });
+        });
+        // Также обновляем полный список для синхронизации
+        fetchChats();
+      });
+
+      socketRef.current = socket;
+    }
+    
     // Обновляем список чатов каждые 10 секунд
     const interval = setInterval(fetchChats, 10000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
 
   const fetchChats = async () => {
@@ -76,7 +123,8 @@ const ChatList = () => {
           <div className="chat-list-items">
             {chats.map((chat) => {
               const lastMessage = chat.messages?.[0];
-              const otherUser = chat.buyerId === chat.buyer?.id ? chat.seller : chat.buyer;
+              // Определяем другого пользователя правильно
+              const otherUser = chat.buyerId === user?.id ? chat.seller : chat.buyer;
               
               return (
                 <div
@@ -131,7 +179,7 @@ const ChatList = () => {
             sellerId={selectedChat.chat.sellerId}
             onClose={() => {
               setSelectedChat(null);
-              fetchChats();
+              fetchChats(); // Обновляем список после закрытия чата
             }}
           />
         </div>

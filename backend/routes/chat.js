@@ -205,23 +205,31 @@ router.post('/:id/messages', auth, async (req, res) => {
     // Отправляем через Socket.io
     const io = req.app.get('io');
     const recipientId = chat.buyerId === req.user.id ? chat.sellerId : chat.buyerId;
+    
+    // Отправляем сообщение всем в комнате чата
     io.to(`chat-${chat.id}`).emit('new-message', messageWithSender);
+    
+    // Также отправляем получателю напрямую (на случай, если он не в комнате)
+    io.to(recipientId.toString()).emit('new-message', messageWithSender);
 
     // Создаем уведомление для получателя
     const recipient = await User.findByPk(recipientId);
     if (recipient) {
-      await Notification.create({
+      const notification = await Notification.create({
         userId: recipientId,
         text: `Новое сообщение от ${req.user.name}`,
-        type: 'message',
+        type: 'MESSAGE',
         relatedCarId: chat.carId,
         relatedUserId: req.user.id
       });
 
       // Отправляем уведомление через Socket.io
       io.to(recipientId.toString()).emit('notification', {
-        text: `Новое сообщение от ${req.user.name}`,
-        type: 'message'
+        id: notification.id,
+        text: notification.text,
+        type: notification.type,
+        read: false,
+        createdAt: notification.createdAt
       });
     }
 

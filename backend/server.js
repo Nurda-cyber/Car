@@ -49,7 +49,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/price-alerts', require('./routes/priceAlerts'));
 app.use('/api/valuations', require('./routes/valuations'));
 app.use('/api/chat', require('./routes/chat'));
-app.use('/api/seller-ratings', require('./routes/sellerRatings'));
+app.use('/api/ratings', require('./routes/sellerRatings'));
 
 // Настройка связей между моделями
 User.hasMany(Favorite, { foreignKey: 'userId', as: 'favorites' });
@@ -139,6 +139,10 @@ const connectDB = async () => {
     // Запускаем cron job только после успешной синхронизации
     const { startPriceAlertCron } = require('./utils/priceAlertCron');
     startPriceAlertCron(io);
+    
+    // Запускаем batch update для счетчиков просмотров
+    const { startViewsBatchUpdate } = require('./utils/viewsBatchUpdate');
+    startViewsBatchUpdate();
   } catch (error) {
     console.error('Ошибка подключения к PostgreSQL:', error.message);
     if (error.message.includes('does not exist')) {
@@ -173,21 +177,31 @@ io.on('connection', (socket) => {
   console.log(`User connected: ${socket.userId}`);
   connectedUsers.set(socket.userId, socket.id);
 
+  // Присоединяем пользователя к его персональной комнате для уведомлений
+  socket.join(socket.userId.toString());
+
   socket.on('join-chat', (chatId) => {
+    console.log(`User ${socket.userId} joining chat ${chatId}`);
     socket.join(`chat-${chatId}`);
   });
 
   socket.on('leave-chat', (chatId) => {
+    console.log(`User ${socket.userId} leaving chat ${chatId}`);
     socket.leave(`chat-${chatId}`);
   });
 
   socket.on('typing', ({ chatId, isTyping }) => {
+    // Отправляем событие печати всем в комнате чата, кроме отправителя
     socket.to(`chat-${chatId}`).emit('typing', { userId: socket.userId, isTyping });
   });
 
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.userId}`);
     connectedUsers.delete(socket.userId);
+  });
+
+  socket.on('error', (error) => {
+    console.error(`Socket error for user ${socket.userId}:`, error);
   });
 });
 

@@ -21,7 +21,7 @@ const Notification = sequelize.define('Notification', {
     allowNull: false
   },
   type: {
-    type: DataTypes.ENUM('message', 'price_drop', 'test_drive_approved', 'general'),
+    type: DataTypes.ENUM('MESSAGE', 'PRICE_DROP', 'TEST_DRIVE_APPROVED', 'general'),
     defaultValue: 'general',
     allowNull: false
   },

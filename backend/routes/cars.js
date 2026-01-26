@@ -163,17 +163,48 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Специфичные маршруты должны быть ПЕРЕД динамическим /:id
+// Получить избранные автомобили пользователя
+router.get('/favorites/list', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const favorites = await Favorite.findAll({
+      where: { userId }
+    });
+
+    const carIds = favorites.map(fav => fav.carId);
+    
+    const cars = await Car.findAll({
+      where: {
+        id: carIds,
+        isActive: true
+      }
+    });
+
+    res.json(cars);
+  } catch (error) {
+    console.error('Ошибка получения избранного:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
 // Получить один автомобиль по ID (должен быть после всех специфичных маршрутов)
 router.get('/:id', auth, async (req, res) => {
   try {
+    const requestedId = req.params.id;
+    console.log(`[GET /cars/:id] Запрос автомобиля с ID: "${requestedId}" от пользователя ${req.user.id}`);
+    
     // Проверяем, что это не специальный маршрут
-    if (req.params.id === 'favorites' || req.params.id === 'sell') {
+    if (requestedId === 'favorites' || requestedId === 'sell') {
+      console.log(`[GET /cars/:id] Специальный маршрут "${requestedId}" - возвращаем 404`);
       return res.status(404).json({ message: 'Маршрут не найден' });
     }
 
-    const carId = parseInt(req.params.id);
+    const carId = parseInt(requestedId);
     
     if (isNaN(carId) || carId <= 0) {
+      console.log(`[GET /cars/:id] Неверный ID: "${requestedId}" (parsed: ${carId})`);
       return res.status(400).json({ message: 'Неверный ID автомобиля' });
     }
 
@@ -186,37 +217,108 @@ router.get('/:id', auth, async (req, res) => {
         {
           model: User,
           as: 'seller',
-          attributes: ['id', 'name', 'email', 'city']
+          attributes: ['id', 'name', 'email', 'city'],
+          required: false // LEFT JOIN вместо INNER JOIN
         }
       ]
     });
 
     if (!car) {
-      console.log(`Автомобиль с ID ${carId} не найден в базе данных`);
+      console.log(`[GET /cars/${carId}] ❌ Автомобиль с ID ${carId} не найден в базе данных`);
+      // Проверяем, существует ли вообще автомобиль с таким ID
+      const carExists = await Car.findByPk(carId, { attributes: ['id'] });
+      if (!carExists) {
+        console.log(`[GET /cars/${carId}] Автомобиль с ID ${carId} действительно не существует в базе данных`);
+      }
       return res.status(404).json({ message: 'Автомобиль не найден' });
     }
+
+    // Преобразуем в обычный объект для логирования
+    const carData = car.toJSON ? car.toJSON() : car;
+    
+    console.log(`[GET /cars/${carId}] Найден автомобиль:`, {
+      id: carData.id,
+      brand: carData.brand,
+      model: carData.model,
+      sellerId: carData.sellerId,
+      isActive: carData.isActive,
+      status: carData.status,
+      currentUserId: req.user.id,
+      sellerIdType: typeof carData.sellerId,
+      userIdType: typeof req.user.id
+    });
 
     // Проверяем права доступа:
     // - Владелец может видеть свой автомобиль в любом статусе
     // - Другие пользователи могут видеть только активные автомобили
-    const isOwner = car.sellerId === req.user.id;
-    if (!isOwner && (!car.isActive || car.status !== 'active')) {
-      console.log(`Автомобиль ${carId} недоступен: isActive=${car.isActive}, status=${car.status}, isOwner=${isOwner}`);
-      return res.status(404).json({ 
-        message: 'Автомобиль не найден или недоступен',
-        details: process.env.NODE_ENV === 'development' ? `Статус: ${car.status}, Активен: ${car.isActive}` : undefined
-      });
+    const isOwner = carData.sellerId != null && parseInt(carData.sellerId) === parseInt(req.user.id);
+    
+    console.log(`[GET /cars/${carId}] Проверка доступа:`, {
+      isOwner,
+      sellerId: carData.sellerId,
+      currentUserId: req.user.id,
+      sellerIdParsed: parseInt(carData.sellerId),
+      userIdParsed: parseInt(req.user.id),
+      isActive: carData.isActive,
+      status: carData.status
+    });
+    
+    // Упрощенная логика доступа:
+    // - Владелец может видеть свой автомобиль в любом статусе
+    // - Для остальных: разрешаем доступ, если автомобиль не явно неактивен
+    //   (isActive !== false означает, что разрешаем доступ для true, null, undefined)
+    // Простая логика доступа:
+    // - Владелец видит свой автомобиль всегда
+    // - Для остальных: разрешаем доступ, если автомобиль найден
+    //   Запрещаем ТОЛЬКО если isActive === false
+    if (!isOwner) {
+      // Для не-владельцев: запрещаем доступ ТОЛЬКО если isActive === false
+      // (разрешаем для true, null, undefined)
+      if (carData.isActive === false) {
+        console.log(`[GET /cars/${carId}] ❌ Доступ запрещен: isActive=false`);
+        return res.status(404).json({ 
+          message: 'Автомобиль не найден или недоступен',
+          details: process.env.NODE_ENV === 'development' ? 'Автомобиль неактивен' : undefined
+        });
+      }
+      
+      console.log(`[GET /cars/${carId}] ✅ Доступ разрешен (не владелец)`);
+    } else {
+      console.log(`[GET /cars/${carId}] ✅ Доступ разрешен (владелец)`);
     }
 
-    // Увеличиваем счетчик просмотров только для активных автомобилей
-    if (car.isActive && car.status === 'active') {
-      car.views = (car.views || 0) + 1;
-      await car.save();
+    // Увеличиваем счетчик просмотров для всех доступных автомобилей
+    // Используем batch update вместо прямого обновления БД
+    // Увеличиваем просмотры, если автомобиль не явно неактивен
+    const canIncrementViews = carData.isActive !== false;
+    if (canIncrementViews) {
+      try {
+        const { incrementView, getCurrentViews } = require('../utils/viewsBatchUpdate');
+        incrementView(carId);
+        
+        // Получаем актуальное количество просмотров (из БД + кэша)
+        const currentViews = await getCurrentViews(carId);
+        carData.views = currentViews;
+      } catch (error) {
+        console.error(`[GET /cars/${carId}] Ошибка обновления просмотров:`, error);
+        // Не блокируем ответ, если не удалось обновить просмотры
+        carData.views = carData.views || 0;
+      }
+    } else {
+      // Если автомобиль неактивен, используем текущее значение views из БД
+      carData.views = carData.views || 0;
     }
 
-    res.json(car);
+    // Преобразуем в JSON и возвращаем
+    console.log(`[GET /cars/${carId}] ✅ Успешно возвращаем автомобиль:`, {
+      id: carData.id,
+      brand: carData.brand,
+      views: carData.views
+    });
+    res.json(carData);
   } catch (error) {
-    console.error('Ошибка получения автомобиля:', error);
+    console.error(`[GET /cars/${carId}] Ошибка получения автомобиля:`, error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       message: 'Ошибка сервера', 
       error: process.env.NODE_ENV === 'development' ? error.message : undefined 
@@ -279,31 +381,6 @@ router.delete('/:id/favorite', auth, async (req, res) => {
     res.json({ message: 'Автомобиль удален из избранного' });
   } catch (error) {
     console.error('Ошибка удаления из избранного:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-// Получить избранные автомобили пользователя
-router.get('/favorites/list', auth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const favorites = await Favorite.findAll({
-      where: { userId }
-    });
-
-    const carIds = favorites.map(fav => fav.carId);
-    
-    const cars = await Car.findAll({
-      where: {
-        id: carIds,
-        isActive: true
-      }
-    });
-
-    res.json(cars);
-  } catch (error) {
-    console.error('Ошибка получения избранного:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 });

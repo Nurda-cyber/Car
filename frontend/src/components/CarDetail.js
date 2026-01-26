@@ -25,7 +25,9 @@ const CarDetail = () => {
   const fetchCar = async () => {
     try {
       setLoading(true);
+      console.log(`[CarDetail] Загрузка автомобиля с ID: ${id}`);
       const response = await axios.get(`/api/cars/${id}`);
+      console.log(`[CarDetail] Автомобиль загружен:`, response.data);
       setCar(response.data);
       
       // Используем информацию о продавце из ответа API
@@ -41,9 +43,12 @@ const CarDetail = () => {
         }
       }
     } catch (error) {
-      console.error('Ошибка загрузки автомобиля:', error);
+      console.error(`[CarDetail] Ошибка загрузки автомобиля ${id}:`, error);
+      console.error('Response status:', error.response?.status);
+      console.error('Response data:', error.response?.data);
       if (error.response?.status === 404) {
         // Автомобиль не найден - это нормально, состояние car останется null
+        console.log(`[CarDetail] Автомобиль ${id} не найден (404)`);
       } else {
         // Другие ошибки - показываем сообщение
         console.error('Ошибка:', error.response?.data?.message || error.message);

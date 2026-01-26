@@ -4,13 +4,18 @@ const SellerRating = require('../models/SellerRating');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
-// Создать или обновить рейтинг продавца
-router.post('/', auth, async (req, res) => {
+// POST /ratings/:sellerId - Создать или обновить рейтинг продавца
+router.post('/:sellerId', auth, async (req, res) => {
   try {
-    const { sellerId, rating, comment } = req.body;
+    const sellerId = parseInt(req.params.sellerId);
+    const { rating, comment } = req.body;
 
-    if (!sellerId || !rating) {
-      return res.status(400).json({ message: 'Укажите sellerId и rating' });
+    if (isNaN(sellerId) || sellerId <= 0) {
+      return res.status(400).json({ message: 'Неверный ID продавца' });
+    }
+
+    if (!rating) {
+      return res.status(400).json({ message: 'Укажите rating' });
     }
 
     if (sellerId === req.user.id) {
@@ -58,7 +63,35 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Получить все рейтинги продавца
+// GET /ratings/:sellerId - Получить рейтинг продавца (average и total)
+router.get('/:sellerId', auth, async (req, res) => {
+  try {
+    const sellerId = parseInt(req.params.sellerId);
+    
+    if (isNaN(sellerId) || sellerId <= 0) {
+      return res.status(400).json({ message: 'Неверный ID продавца' });
+    }
+
+    const ratings = await SellerRating.findAll({
+      where: { sellerId: sellerId }
+    });
+
+    // Вычисляем средний рейтинг
+    const avgRating = ratings.length > 0
+      ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+      : 0;
+
+    res.json({
+      average: parseFloat(avgRating.toFixed(1)),
+      total: ratings.length
+    });
+  } catch (error) {
+    console.error('Ошибка получения рейтинга:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+// GET /ratings/seller/:sellerId - Получить все рейтинги продавца (детальный список)
 router.get('/seller/:sellerId', auth, async (req, res) => {
   try {
     const ratings = await SellerRating.findAll({

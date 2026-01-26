@@ -22,10 +22,14 @@ const SellerRating = ({ sellerId, sellerName }) => {
 
   const fetchRatings = async () => {
     try {
-      const response = await axios.get(`/api/seller-ratings/seller/${sellerId}`);
-      setRatings(response.data.ratings);
-      setAverageRating(parseFloat(response.data.averageRating));
-      setTotalRatings(response.data.totalRatings);
+      // Получаем общую статистику (average и total)
+      const statsResponse = await axios.get(`/api/ratings/${sellerId}`);
+      setAverageRating(statsResponse.data.average);
+      setTotalRatings(statsResponse.data.total);
+      
+      // Получаем детальный список рейтингов
+      const detailsResponse = await axios.get(`/api/ratings/seller/${sellerId}`);
+      setRatings(detailsResponse.data.ratings);
     } catch (error) {
       console.error('Ошибка загрузки рейтингов:', error);
     }
@@ -33,7 +37,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
 
   const fetchMyRating = async () => {
     try {
-      const response = await axios.get(`/api/seller-ratings/seller/${sellerId}/my`);
+      const response = await axios.get(`/api/ratings/seller/${sellerId}/my`);
       if (response.data) {
         setMyRating(response.data);
         setRating(response.data.rating);
@@ -56,8 +60,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
     setMessage({ text: '', type: '' });
 
     try {
-      await axios.post('/api/seller-ratings', {
-        sellerId,
+      await axios.post(`/api/ratings/${sellerId}`, {
         rating,
         comment: comment.trim() || null
       });

@@ -69,7 +69,7 @@ const checkPriceAlerts = async (io) => {
         await Notification.create({
           userId: alert.userId,
           text: `Цена на ${car.brand} ${car.model} упала до ${currentPrice.toLocaleString('kk-KZ')} ₸`,
-          type: 'price_drop',
+          type: 'PRICE_DROP',
           relatedCarId: car.id
         });
 
@@ -82,7 +82,7 @@ const checkPriceAlerts = async (io) => {
         if (io) {
           io.to(alert.userId.toString()).emit('notification', {
             text: `Цена на ${car.brand} ${car.model} упала до ${currentPrice.toLocaleString('kk-KZ')} ₸`,
-            type: 'price_drop',
+            type: 'PRICE_DROP',
             carId: car.id
           });
         }

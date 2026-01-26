@@ -18,11 +18,13 @@ const Chat = ({ carId, sellerId, onClose }) => {
 
   useEffect(() => {
     initializeChat();
-    initializeSocket();
 
     return () => {
       if (socket) {
         socket.disconnect();
+      }
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
       }
     };
   }, [carId, sellerId]);
@@ -40,6 +42,9 @@ const Chat = ({ carId, sellerId, onClose }) => {
       // Загружаем сообщения
       const messagesResponse = await axios.get(`/api/chat/${response.data.id}`);
       setMessages(messagesResponse.data.messages);
+      
+      // Инициализируем Socket.io после создания чата
+      initializeSocket(response.data.id);
     } catch (error) {
       console.error('Ошибка инициализации чата:', error);
     } finally {
@@ -47,26 +52,54 @@ const Chat = ({ carId, sellerId, onClose }) => {
     }
   };
 
-  const initializeSocket = () => {
+  const initializeSocket = (chatId) => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('Токен не найден');
+      return;
+    }
+
     const newSocket = io('http://localhost:5000', {
-      auth: { token }
+      auth: { token },
+      transports: ['websocket', 'polling']
     });
 
     newSocket.on('connect', () => {
-      console.log('Socket connected');
-      if (chat) {
-        newSocket.emit('join-chat', chat.id);
+      console.log('Socket connected, joining chat:', chatId);
+      if (chatId) {
+        newSocket.emit('join-chat', chatId);
       }
     });
 
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
+    newSocket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+    });
+
     newSocket.on('new-message', (message) => {
-      setMessages(prev => [...prev, message]);
-      scrollToBottom();
+      console.log('New message received via Socket:', message);
+      setMessages(prev => {
+        // Проверяем, нет ли уже такого сообщения (по ID или по тексту и времени)
+        const exists = prev.some(m => 
+          m.id === message.id || 
+          (m.text === message.text && 
+           Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) < 1000)
+        );
+        if (exists) {
+          console.log('Message already exists, skipping');
+          return prev;
+        }
+        console.log('Adding new message to list');
+        return [...prev, message];
+      });
+      setTimeout(() => scrollToBottom(), 100);
     });
 
     newSocket.on('typing', ({ userId, isTyping: typing }) => {
-      if (userId !== user.id) {
+      if (userId !== user?.id) {
         setIsTyping(typing);
         if (typing) {
           setTypingUser(userId);
@@ -77,18 +110,11 @@ const Chat = ({ carId, sellerId, onClose }) => {
     });
 
     newSocket.on('notification', (notification) => {
-      // Можно показать toast уведомление
       console.log('New notification:', notification);
     });
 
     setSocket(newSocket);
   };
-
-  useEffect(() => {
-    if (socket && chat) {
-      socket.emit('join-chat', chat.id);
-    }
-  }, [socket, chat]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -97,10 +123,18 @@ const Chat = ({ carId, sellerId, onClose }) => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !chat) return;
+    if (!newMessage.trim() || !chat || !socket || !socket.connected) return;
 
     const messageText = newMessage.trim();
     setNewMessage('');
+
+    // Останавливаем индикатор печати перед отправкой
+    if (socket) {
+      socket.emit('typing', { chatId: chat.id, isTyping: false });
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    }
 
     try {
       const response = await axios.post(`/api/chat/${chat.id}/messages`, {
@@ -108,14 +142,14 @@ const Chat = ({ carId, sellerId, onClose }) => {
       });
 
       // Сообщение будет добавлено через Socket.io событие
-      // Но добавляем локально для мгновенного отображения
-      setMessages(prev => [...prev, response.data]);
-      scrollToBottom();
-
-      // Останавливаем индикатор печати
-      if (socket) {
-        socket.emit('typing', { chatId: chat.id, isTyping: false });
-      }
+      // Но добавляем локально для мгновенного отображения (оптимистичное обновление)
+      setMessages(prev => {
+        // Проверяем, нет ли уже такого сообщения
+        const exists = prev.some(m => m.id === response.data.id);
+        if (exists) return prev;
+        return [...prev, response.data];
+      });
+      setTimeout(() => scrollToBottom(), 100);
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
       setNewMessage(messageText); // Восстанавливаем текст при ошибке
@@ -123,12 +157,21 @@ const Chat = ({ carId, sellerId, onClose }) => {
   };
 
   const handleTyping = (e) => {
-    setNewMessage(e.target.value);
+    const value = e.target.value;
+    setNewMessage(value);
 
-    if (!socket || !chat) return;
+    if (!socket || !chat || !socket.connected) return;
 
-    // Отправляем событие печати
-    socket.emit('typing', { chatId: chat.id, isTyping: true });
+    // Отправляем событие печати только если есть текст
+    if (value.trim().length > 0) {
+      socket.emit('typing', { chatId: chat.id, isTyping: true });
+    } else {
+      socket.emit('typing', { chatId: chat.id, isTyping: false });
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      return;
+    }
 
     // Очищаем предыдущий таймаут
     if (typingTimeoutRef.current) {
@@ -137,7 +180,9 @@ const Chat = ({ carId, sellerId, onClose }) => {
 
     // Останавливаем индикатор печати через 3 секунды
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', { chatId: chat.id, isTyping: false });
+      if (socket && socket.connected) {
+        socket.emit('typing', { chatId: chat.id, isTyping: false });
+      }
     }, 3000);
   };
 
