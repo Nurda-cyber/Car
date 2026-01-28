@@ -41,7 +41,7 @@ const Profile = () => {
 
   const fetchFavoritesCount = async () => {
     try {
-      const response = await axios.get('/cars/favorites/list');
+      const response = await axios.get('/api/cars/favorites/list');
       setFavoritesCount(response.data.length);
       setFavoritesList(response.data);
     } catch (error) {
@@ -55,7 +55,7 @@ const Profile = () => {
 
   const fetchPurchaseHistory = async () => {
     try {
-      const response = await axios.get('/auth/purchase-history');
+      const response = await axios.get('/api/auth/purchase-history');
       setPurchaseHistory(response.data);
       setPurchasesCount(response.data.length);
     } catch (error) {
@@ -81,7 +81,7 @@ const Profile = () => {
 
   const removeFromFavorites = async (carId) => {
     try {
-      await axios.delete(`/cars/${carId}/favorite`);
+      await axios.delete(`/api/cars/${carId}/favorite`);
       setFavoritesList(favoritesList.filter(car => car.id !== carId));
       setFavoritesCount(favoritesCount - 1);
     } catch (error) {
@@ -155,7 +155,7 @@ const Profile = () => {
         updateData.city = formData.city || '';
       }
 
-      const response = await axios.put('/auth/profile', updateData);
+      const response = await axios.put('/api/auth/profile', updateData);
       updateUser(response.data.user);
       setSuccess('Профиль успешно обновлен');
       setIsEditing(false);

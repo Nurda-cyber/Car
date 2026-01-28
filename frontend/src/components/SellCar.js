@@ -113,7 +113,7 @@ const SellCar = () => {
         formDataToSend.append('photos', file);
       });
 
-      const response = await axios.post('/cars/sell', formDataToSend, {
+      const response = await axios.post('/api/cars/sell', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

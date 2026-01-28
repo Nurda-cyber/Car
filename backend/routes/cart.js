@@ -14,7 +14,7 @@ router.get('/', auth, async (req, res) => {
     const userId = req.user.id;
 
     const cartItems = await Cart.findAll({
-      where: { userId },
+      where: { userId: parseInt(userId) },
       include: [{
         model: Car,
         as: 'car',
@@ -78,7 +78,7 @@ router.post('/checkout', auth, async (req, res) => {
 
     // Получаем все товары в корзине
     const cartItems = await Cart.findAll({
-      where: { userId },
+      where: { userId: parseInt(userId) },
       include: [{
         model: Car,
         as: 'car',
@@ -367,7 +367,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     const cartItem = await Cart.findOne({
-      where: { userId, carId }
+      where: { userId: parseInt(userId), carId: parseInt(carId) }
     });
 
     if (!cartItem) {

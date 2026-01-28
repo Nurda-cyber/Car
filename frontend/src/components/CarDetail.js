@@ -182,17 +182,17 @@ const CarDetail = () => {
           </div>
 
           {!isMyCar && (
-            <div className="car-detail-alerts">
+            <div className="car-detail-alerts" onClick={(e) => e.stopPropagation()}>
               <PriceDropAlert car={car} />
             </div>
           )}
 
-          <div className="car-detail-valuation">
+          <div className="car-detail-valuation" onClick={(e) => e.stopPropagation()}>
             <CarValuation carId={car.id} />
           </div>
 
           {/* Рейтинг продавца */}
-          <div className="car-detail-seller-rating">
+          <div className="car-detail-seller-rating" onClick={(e) => e.stopPropagation()}>
             {car.sellerId ? (
               !isMyCar ? (
                 <SellerRating 

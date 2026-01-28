@@ -32,7 +32,7 @@ const AdminPanel = () => {
   const fetchCars = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/admin/cars');
+      const response = await axios.get('/api/admin/cars');
       setCars(response.data);
     } catch (error) {
       console.error('Ошибка загрузки автомобилей:', error);
@@ -44,7 +44,7 @@ const AdminPanel = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/admin/users');
+      const response = await axios.get('/api/admin/users');
       setUsers(response.data);
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error);
@@ -81,12 +81,12 @@ const AdminPanel = () => {
       });
 
       if (editingCar) {
-        await axios.put(`/admin/cars/${editingCar.id}`, formDataToSend, {
+        await axios.put(`/api/admin/cars/${editingCar.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         alert('Автомобиль обновлен');
       } else {
-        await axios.post('/admin/cars', formDataToSend, {
+        await axios.post('/api/admin/cars', formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         alert('Автомобиль добавлен');
@@ -124,19 +124,34 @@ const AdminPanel = () => {
 
   const handleToggleActive = async (carId) => {
     try {
-      await axios.patch(`/admin/cars/${carId}/toggle`);
+      await axios.patch(`/api/admin/cars/${carId}/toggle`);
       fetchCars();
     } catch (error) {
       console.error('Ошибка переключения статуса:', error);
       alert('Ошибка переключения статуса');
     }
   };
+
+  const handleDeleteCar = async (carId) => {
+    if (!window.confirm('Удалить этот автомобиль из базы? Это действие необратимо.')) {
+      return;
+    }
+    try {
+      await axios.delete(`/api/admin/cars/${carId}`);
+      await fetchCars();
+      alert('Автомобиль удален из базы');
+    } catch (error) {
+      console.error('Ошибка удаления автомобиля:', error);
+      alert(error.response?.data?.message || 'Ошибка удаления автомобиля');
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Удалить этого пользователя? Он больше не сможет войти в систему.')) {
       return;
     }
     try {
-      await axios.delete(`/admin/users/${userId}`);
+      await axios.delete(`/api/admin/users/${userId}`);
       await fetchUsers();
       alert('Пользователь помечен как удалённый');
     } catch (error) {
@@ -148,7 +163,7 @@ const AdminPanel = () => {
 
   const handleDeletePhoto = async (carId, photoIndex) => {
     try {
-      await axios.delete(`/admin/cars/${carId}/photos/${photoIndex}`);
+      await axios.delete(`/api/admin/cars/${carId}/photos/${photoIndex}`);
       fetchCars();
     } catch (error) {
       console.error('Ошибка удаления фото:', error);
@@ -441,6 +456,12 @@ const AdminPanel = () => {
                         className={`btn-toggle ${car.isActive ? 'active' : ''}`}
                       >
                         {car.isActive ? 'Отключить' : 'Включить'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCar(car.id)}
+                        className="btn-toggle"
+                      >
+                        Удалить
                       </button>
                     </div>
                   </td>

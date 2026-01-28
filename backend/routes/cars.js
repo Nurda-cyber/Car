@@ -137,26 +137,72 @@ router.get('/', auth, async (req, res) => {
       order: orderBy
     });
 
+    // Получаем средние оценки для всех автомобилей
+    const CarValuation = require('../models/CarValuation');
+    const carIds = cars.map(car => car.id);
+    
+    // Инициализируем карту рейтингов для всех автомобилей
+    const ratingsMap = {};
+    cars.forEach(car => {
+      ratingsMap[car.id] = { sum: 0, count: 0 };
+    });
+    
+    // Получаем все оценки для этих автомобилей (только если есть автомобили)
+    if (carIds.length > 0) {
+      try {
+        const valuations = await CarValuation.findAll({
+          where: { carId: carIds },
+          attributes: ['carId', 'rating']
+        });
+
+        // Вычисляем средние оценки для каждого автомобиля
+        valuations.forEach(v => {
+          if (ratingsMap[v.carId]) {
+            ratingsMap[v.carId].sum += v.rating;
+            ratingsMap[v.carId].count += 1;
+          }
+        });
+      } catch (error) {
+        console.error('Ошибка получения оценок автомобилей:', error);
+        // Продолжаем работу даже если не удалось получить оценки
+      }
+    }
+
+    // Добавляем средние оценки к автомобилям
+    let carsWithRatings = cars.map(car => {
+      const carData = car.toJSON();
+      const ratingData = ratingsMap[car.id];
+      if (ratingData && ratingData.count > 0) {
+        carData.averageRating = parseFloat((ratingData.sum / ratingData.count).toFixed(1));
+        carData.totalRatings = ratingData.count;
+      } else {
+        // Всегда устанавливаем значения, даже если оценок нет
+        carData.averageRating = 0;
+        carData.totalRatings = 0;
+      }
+      return carData;
+    });
+
     // Если пользователь указал город, добавляем расстояние до каждого автомобиля
     if (req.user) {
       const user = await User.findByPk(req.user.id);
       if (user && user.city) {
-        const carsWithDistance = cars.map(car => {
+        carsWithRatings = carsWithRatings.map(car => {
           const distance = calculateDistanceFromCity(
             user.city,
             car.latitude,
             car.longitude
           );
           return {
-            ...car.toJSON(),
+            ...car,
             distance: distance
           };
         });
-        return res.json(carsWithDistance);
+        return res.json(carsWithRatings);
       }
     }
 
-    res.json(cars);
+    res.json(carsWithRatings);
   } catch (error) {
     console.error('Ошибка получения автомобилей:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
@@ -170,7 +216,7 @@ router.get('/favorites/list', auth, async (req, res) => {
     const userId = req.user.id;
 
     const favorites = await Favorite.findAll({
-      where: { userId }
+      where: { userId: parseInt(userId) }
     });
 
     const carIds = favorites.map(fav => fav.carId);
@@ -343,7 +389,7 @@ router.post('/:id/favorite', auth, async (req, res) => {
 
     // Проверяем, не добавлен ли уже в избранное
     const existingFavorite = await Favorite.findOne({
-      where: { userId, carId }
+      where: { userId: parseInt(userId), carId: parseInt(carId) }
     });
 
     if (existingFavorite) {
@@ -352,8 +398,8 @@ router.post('/:id/favorite', auth, async (req, res) => {
 
     // Добавляем в избранное
     const favorite = await Favorite.create({
-      userId,
-      carId
+      userId: parseInt(userId),
+      carId: parseInt(carId)
     });
 
     res.status(201).json({ message: 'Автомобиль добавлен в избранное', favorite });
@@ -370,7 +416,7 @@ router.delete('/:id/favorite', auth, async (req, res) => {
     const userId = req.user.id;
 
     const favorite = await Favorite.findOne({
-      where: { userId, carId }
+      where: { userId: parseInt(userId), carId: parseInt(carId) }
     });
 
     if (!favorite) {

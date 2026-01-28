@@ -50,6 +50,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (rating === 0) {
       setMessage({ text: 'Пожалуйста, выберите рейтинг', type: 'error' });
@@ -83,16 +84,26 @@ const SellerRating = ({ sellerId, sellerName }) => {
 
   const renderStars = (value, interactive = false) => {
     return (
-      <div className="stars-container">
+      <div className="stars-container" onClick={(e) => e.stopPropagation()}>
         {[1, 2, 3, 4, 5].map((star) => {
           const isFilled = star <= (interactive ? hoveredRating || rating : value);
           return (
             <span
               key={star}
               className={`star ${isFilled ? 'filled' : ''} ${interactive ? 'interactive' : ''}`}
-              onMouseEnter={() => interactive && setHoveredRating(star)}
-              onMouseLeave={() => interactive && setHoveredRating(0)}
-              onClick={() => interactive && setRating(star)}
+              onMouseEnter={(e) => {
+                e.stopPropagation();
+                if (interactive) setHoveredRating(star);
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation();
+                if (interactive) setHoveredRating(0);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (interactive) setRating(star);
+              }}
             >
               ⭐
             </span>
@@ -114,7 +125,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
   }
 
   return (
-    <div className="seller-rating-container">
+    <div className="seller-rating-container" onClick={(e) => e.stopPropagation()}>
       <h3 className="rating-title">⭐ Рейтинг продавца: {sellerName || 'Продавец'}</h3>
 
       {totalRatings > 0 ? (
@@ -131,7 +142,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
         </div>
       )}
 
-      <form className="rating-form" onSubmit={handleSubmit}>
+      <form className="rating-form" onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()}>
         <div className="form-group">
           <label>Ваш рейтинг *</label>
           {renderStars(rating, true)}

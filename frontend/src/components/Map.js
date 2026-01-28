@@ -14,7 +14,7 @@ const Map = () => {
   const fetchCars = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/cars');
+      const response = await axios.get('/api/cars');
       // Фильтруем только автомобили с координатами
       const carsWithLocation = response.data.filter(car => 
         car.latitude && car.longitude

@@ -41,8 +41,16 @@ const CarsList = () => {
           params.append(key, filters[key]);
         }
       });
-      const response = await axios.get(`/cars?${params.toString()}`);
-      setCars(response.data);
+      const response = await axios.get(`/api/cars?${params.toString()}`);
+      console.log('Загружены автомобили:', response.data);
+      // Убеждаемся, что у каждого автомобиля есть поля для рейтинга
+      const carsWithRatings = response.data.map(car => ({
+        ...car,
+        averageRating: car.averageRating !== undefined ? car.averageRating : 0,
+        totalRatings: car.totalRatings !== undefined ? car.totalRatings : 0
+      }));
+      console.log('Автомобили с рейтингами:', carsWithRatings);
+      setCars(carsWithRatings);
     } catch (error) {
       console.error('Ошибка загрузки автомобилей:', error);
     } finally {
@@ -52,7 +60,7 @@ const CarsList = () => {
 
   const fetchFavorites = async () => {
     try {
-      const response = await axios.get('/cars/favorites/list');
+      const response = await axios.get('/api/cars/favorites/list');
       setFavorites(response.data.map(car => car.id));
     } catch (error) {
       console.error('Ошибка загрузки избранного:', error);
@@ -61,7 +69,7 @@ const CarsList = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get('/cart');
+      const response = await axios.get('/api/cart');
       setCartItems(response.data.map(item => item.carId));
     } catch (error) {
       console.error('Ошибка загрузки корзины:', error);
@@ -72,10 +80,10 @@ const CarsList = () => {
     try {
       const isFavorite = favorites.includes(carId);
       if (isFavorite) {
-        await axios.delete(`/cars/${carId}/favorite`);
+        await axios.delete(`/api/cars/${carId}/favorite`);
         setFavorites(favorites.filter(id => id !== carId));
       } else {
-        await axios.post(`/cars/${carId}/favorite`);
+        await axios.post(`/api/cars/${carId}/favorite`);
         setFavorites([...favorites, carId]);
       }
     } catch (error) {
@@ -87,7 +95,7 @@ const CarsList = () => {
 
   const addToCart = async (carId) => {
     try {
-      await axios.post(`/cart/${carId}`);
+      await axios.post(`/api/cart/${carId}`);
       setCartItems([...cartItems, carId]);
       setMessage({ text: 'Автомобиль добавлен в корзину', type: 'success' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
@@ -271,6 +279,46 @@ const CarsList = () => {
                 <h3>{car.brand} {car.model}</h3>
                 <p className="car-year">{car.year} год</p>
                 <p className="car-price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</p>
+                
+                {/* Оценка автомобиля (5 звезд) - всегда отображается */}
+                <div className="car-rating">
+                  <div className="car-rating-stars">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      // Получаем рейтинг из данных или используем 0
+                      const avgRating = (car.averageRating !== undefined && car.averageRating !== null) 
+                        ? parseFloat(car.averageRating) 
+                        : 0;
+                      // Звезда заполнена, если её номер <= округленного рейтинга
+                      const isFilled = star <= Math.round(avgRating);
+                      return (
+                        <span
+                          key={star}
+                          className={`star ${isFilled ? 'filled' : ''}`}
+                          title={`${avgRating > 0 ? avgRating.toFixed(1) : 'Нет оценок'}`}
+                        >
+                          ⭐
+                        </span>
+                      );
+                    })}
+                  </div>
+                  {(car.averageRating !== undefined && car.averageRating !== null && car.averageRating > 0) ? (
+                    <>
+                      <span className="car-rating-value">
+                        {parseFloat(car.averageRating).toFixed(1)}
+                      </span>
+                      {car.totalRatings > 0 && (
+                        <span className="car-rating-count">
+                          ({car.totalRatings})
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="car-rating-no-rating">
+                      Нет оценок
+                    </span>
+                  )}
+                </div>
+                
                 {car.views !== undefined && car.views !== null && (
                   <p className="car-views">👁️ Просмотров: {car.views.toLocaleString('kk-KZ')}</p>
                 )}

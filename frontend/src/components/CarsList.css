@@ -179,6 +179,61 @@
   margin: 4px 0;
 }
 
+.car-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 8px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 32px;
+}
+
+
+.car-rating-stars {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.car-rating-stars .star {
+  font-size: 1.25rem;
+  color: #e0e0e0;
+  transition: all 0.2s ease;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  user-select: none;
+}
+
+.car-rating-stars .star.filled {
+  color: #ffc107;
+  filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.5));
+  transform: scale(1.1);
+}
+
+.car-rating-value {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+.car-rating-count {
+  font-size: 0.8125rem;
+  color: var(--color-text-subtle);
+}
+
+.car-rating-no-rating {
+  font-size: 0.8125rem;
+  color: var(--color-text-subtle);
+  font-style: italic;
+}
+
 .car-views {
   color: #666;
   font-size: 0.875rem;

@@ -9,7 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // Настройка axios для отправки токена в заголовках
-  axios.defaults.baseURL = 'http://localhost:5000/api';
+  // baseURL должен быть без /api, так как мы используем proxy или добавляем /api в запросах
+  axios.defaults.baseURL = 'http://localhost:5000';
   
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const response = await axios.get('/auth/me');
+      const response = await axios.get('/api/auth/me');
       setUser(response.data.user);
     } catch (error) {
       localStorage.removeItem('token');
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await axios.post('/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { email, password });
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -55,7 +56,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       setError(null);
-      const response = await axios.post('/auth/register', { name, email, password });
+      const response = await axios.post('/api/auth/register', { name, email, password });
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);

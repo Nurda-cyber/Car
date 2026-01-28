@@ -129,6 +129,9 @@ router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
       city
     } = req.body;
 
+    // Запоминаем старую цену до изменений
+    const oldPrice = car.price != null ? parseFloat(car.price) : null;
+
     // Обновление полей
     if (brand) car.brand = brand;
     if (model) car.model = model;
@@ -171,10 +174,64 @@ router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
 
     await car.save();
 
+    // После сохранения проверяем, снизилась ли цена
+    const newPrice = car.price != null ? parseFloat(car.price) : null;
+    const priceDecreased =
+      oldPrice != null &&
+      newPrice != null &&
+      !Number.isNaN(oldPrice) &&
+      !Number.isNaN(newPrice) &&
+      newPrice < oldPrice;
+
+    if (priceDecreased) {
+      try {
+        const io = req.app.get('io');
+        if (io) {
+          const { checkPriceAlerts } = require('../utils/priceAlertCron');
+          await checkPriceAlerts(io);
+        }
+      } catch (err) {
+        console.error('Ошибка проверки ценовых алертов после обновления автомобиля:', err);
+      }
+    }
+
     res.json({ message: 'Автомобиль успешно обновлен', car });
   } catch (error) {
     console.error('Ошибка обновления автомобиля:', error);
     res.status(500).json({ message: 'Ошибка сервера при обновлении автомобиля' });
+  }
+});
+
+// Удалить автомобиль полностью
+router.delete('/cars/:id', admin, async (req, res) => {
+  try {
+    const carId = req.params.id;
+    const car = await Car.findByPk(carId);
+
+    if (!car) {
+      return res.status(404).json({ message: 'Автомобиль не найден' });
+    }
+
+    // Удаляем все связанные файлы фотографий с диска
+    if (Array.isArray(car.photos) && car.photos.length > 0) {
+      for (const photo of car.photos) {
+        try {
+          const photoPath = path.join(__dirname, '..', photo);
+          if (fs.existsSync(photoPath)) {
+            fs.unlinkSync(photoPath);
+          }
+        } catch (err) {
+          console.error(`Ошибка удаления файла фото "${photo}":`, err);
+        }
+      }
+    }
+
+    await car.destroy();
+
+    res.json({ message: 'Автомобиль удален из базы' });
+  } catch (error) {
+    console.error('Ошибка удаления автомобиля:', error);
+    res.status(500).json({ message: 'Ошибка сервера при удалении автомобиля' });
   }
 });
 

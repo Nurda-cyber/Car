@@ -18,7 +18,7 @@ const Cart = () => {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.get('/cart');
+      const response = await axios.get('/api/cart');
       // Проверяем, что данные корректны
       if (Array.isArray(response.data)) {
         setCartItems(response.data);
@@ -37,7 +37,7 @@ const Cart = () => {
 
   const removeFromCart = async (carId) => {
     try {
-      await axios.delete(`/cart/${carId}`);
+      await axios.delete(`/api/cart/${carId}`);
       setCartItems(cartItems.filter(item => item.carId !== carId));
       setSuccess('Автомобиль удален из корзины');
       setTimeout(() => setSuccess(''), 3000);
@@ -54,7 +54,7 @@ const Cart = () => {
       setLoading(true);
       
       console.log('[FRONTEND] Начало покупки...');
-      const response = await axios.post('/cart/checkout');
+      const response = await axios.post('/api/cart/checkout');
       console.log('[FRONTEND] Ответ сервера:', response.data);
       
       // Формируем сообщение с учетом предупреждений

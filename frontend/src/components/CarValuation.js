@@ -46,6 +46,7 @@ const CarValuation = ({ carId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (rating === 0) {
       setMessage({ text: 'Пожалуйста, выберите рейтинг', type: 'error' });
@@ -78,16 +79,26 @@ const CarValuation = ({ carId }) => {
 
   const renderStars = (value, interactive = false) => {
     return (
-      <div className="stars-container">
+      <div className="stars-container" onClick={(e) => e.stopPropagation()}>
         {[1, 2, 3, 4, 5].map((star) => {
           const isFilled = star <= (interactive ? hoveredRating || rating : value);
           return (
             <span
               key={star}
               className={`star ${isFilled ? 'filled' : ''} ${interactive ? 'interactive' : ''}`}
-              onMouseEnter={() => interactive && setHoveredRating(star)}
-              onMouseLeave={() => interactive && setHoveredRating(0)}
-              onClick={() => interactive && setRating(star)}
+              onMouseEnter={(e) => {
+                e.stopPropagation();
+                if (interactive) setHoveredRating(star);
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation();
+                if (interactive) setHoveredRating(0);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (interactive) setRating(star);
+              }}
             >
               ⭐
             </span>
@@ -98,7 +109,7 @@ const CarValuation = ({ carId }) => {
   };
 
   return (
-    <div className="car-valuation-container">
+    <div className="car-valuation-container" onClick={(e) => e.stopPropagation()}>
       <h3 className="valuation-title">⭐ Оценка автомобиля</h3>
 
       {totalValuations > 0 && (
@@ -111,7 +122,7 @@ const CarValuation = ({ carId }) => {
         </div>
       )}
 
-      <form className="valuation-form" onSubmit={handleSubmit}>
+      <form className="valuation-form" onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()}>
         <div className="form-group">
           <label>Ваш рейтинг *</label>
           {renderStars(rating, true)}
