@@ -4,10 +4,13 @@ import io from 'socket.io-client';
 import AuthContext from '../context/AuthContext';
 import './Chat.css';
 
-const Chat = ({ carId, sellerId, onClose }) => {
+// Chat может работать в двух режимах:
+// 1) Покупатель со страницы автомобиля: создаём/получаем чат по carId
+// 2) Любая сторона из списка чатов: открываем уже существующий чат по chatId
+const Chat = ({ carId, sellerId, chatId, initialChat, initialMessages, onClose }) => {
   const { user } = React.useContext(AuthContext);
-  const [chat, setChat] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [chat, setChat] = useState(initialChat || null);
+  const [messages, setMessages] = useState(initialMessages || []);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
@@ -27,7 +30,7 @@ const Chat = ({ carId, sellerId, onClose }) => {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [carId, sellerId]);
+  }, [carId, chatId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -36,17 +39,39 @@ const Chat = ({ carId, sellerId, onClose }) => {
   const initializeChat = async () => {
     try {
       setLoading(true);
+      // Режим 1: открываем уже существующий чат по chatId (список чатов, продавец или покупатель)
+      if (chatId) {
+        // Если сверху передали готовые данные - используем их, без лишних запросов
+        if (initialChat) {
+          setChat(initialChat);
+        }
+        if (initialMessages) {
+          setMessages(initialMessages);
+        } else {
+          // На всякий случай подгружаем сообщения, если их не передали
+          const messagesResponse = await axios.get(`/api/chat/${chatId}`);
+          setChat(messagesResponse.data.chat);
+          setMessages(messagesResponse.data.messages);
+        }
+
+        initializeSocket(chatId);
+        return;
+      }
+
+      // Режим 2: создаём/получаем чат по carId (покупатель со страницы авто)
       const response = await axios.post('/api/chat', { carId });
       setChat(response.data);
 
-      // Загружаем сообщения
+      // Загружаем сообщения для только что полученного чата
       const messagesResponse = await axios.get(`/api/chat/${response.data.id}`);
       setMessages(messagesResponse.data.messages);
-      
-      // Инициализируем Socket.io после создания чата
+
+      // Инициализируем Socket.io после создания/получения чата
       initializeSocket(response.data.id);
     } catch (error) {
       console.error('Ошибка инициализации чата:', error);
+      const msg = error.response?.data?.message || 'Не удалось создать чат с продавцом';
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -122,14 +147,16 @@ const Chat = ({ carId, sellerId, onClose }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    
-    if (!newMessage.trim() || !chat || !socket || !socket.connected) return;
+
+    // Отправку сообщения нельзя блокировать из-за отсутствия сокета:
+    // сообщение всегда должно уходить по HTTP, а сокет используется только для real-time.
+    if (!newMessage.trim() || !chat) return;
 
     const messageText = newMessage.trim();
     setNewMessage('');
 
     // Останавливаем индикатор печати перед отправкой
-    if (socket) {
+    if (socket && socket.connected) {
       socket.emit('typing', { chatId: chat.id, isTyping: false });
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -152,6 +179,8 @@ const Chat = ({ carId, sellerId, onClose }) => {
       setTimeout(() => scrollToBottom(), 100);
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
+      const msg = error.response?.data?.message || 'Не удалось отправить сообщение';
+      alert(msg);
       setNewMessage(messageText); // Восстанавливаем текст при ошибке
     }
   };

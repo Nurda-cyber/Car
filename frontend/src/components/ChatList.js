@@ -175,8 +175,11 @@ const ChatList = () => {
       {selectedChat && (
         <div className="chat-list-chat">
           <Chat
+            chatId={selectedChat.chat.id}
             carId={selectedChat.chat.carId}
             sellerId={selectedChat.chat.sellerId}
+            initialChat={selectedChat.chat}
+            initialMessages={selectedChat.messages}
             onClose={() => {
               setSelectedChat(null);
               fetchChats(); // Обновляем список после закрытия чата

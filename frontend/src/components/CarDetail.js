@@ -93,12 +93,19 @@ const CarDetail = () => {
             </div>
             <div className="car-detail-actions">
               <ShareButton car={car} />
-              {!isMyCar && (
+              {!isMyCar ? (
                 <button 
                   className="chat-button"
                   onClick={() => setShowChat(!showChat)}
                 >
                   💬 {showChat ? 'Закрыть чат' : 'Написать продавцу'}
+                </button>
+              ) : (
+                <button
+                  className="chat-button"
+                  onClick={() => navigate('/dashboard', { state: { activeTab: 'chats' } })}
+                >
+                  💬 Открыть чаты по этому авто
                 </button>
               )}
             </div>

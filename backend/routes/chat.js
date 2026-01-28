@@ -16,8 +16,15 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'Укажите carId' });
     }
 
+    const parsedCarId = parseInt(carId);
+    const currentUserId = parseInt(req.user.id);
+
+    if (Number.isNaN(parsedCarId) || parsedCarId <= 0) {
+      return res.status(400).json({ message: 'Неверный ID автомобиля' });
+    }
+
     const car = await Car.findOne({
-      where: { id: carId, isActive: true },
+      where: { id: parsedCarId, isActive: true },
       include: [{ model: User, as: 'seller', attributes: ['id', 'name'] }]
     });
 
@@ -25,16 +32,26 @@ router.post('/', auth, async (req, res) => {
       return res.status(404).json({ message: 'Автомобиль не найден' });
     }
 
-    if (car.sellerId === req.user.id) {
+    if (!car.sellerId) {
+      return res.status(400).json({ message: 'У этого объявления не указан продавец, чат недоступен' });
+    }
+
+    const sellerId = parseInt(car.sellerId);
+
+    if (!Number.isInteger(sellerId) || sellerId <= 0) {
+      return res.status(400).json({ message: 'Некорректный продавец для этого объявления' });
+    }
+
+    if (sellerId === currentUserId) {
       return res.status(400).json({ message: 'Нельзя создать чат со своим автомобилем' });
     }
 
     // Ищем существующий чат
     let chat = await Chat.findOne({
       where: {
-        carId: carId,
-        buyerId: req.user.id,
-        sellerId: car.sellerId
+        carId: parsedCarId,
+        buyerId: currentUserId,
+        sellerId: sellerId
       },
       include: [
         { model: User, as: 'buyer', attributes: ['id', 'name', 'email'] },
@@ -46,9 +63,9 @@ router.post('/', auth, async (req, res) => {
     if (!chat) {
       // Создаем новый чат
       chat = await Chat.create({
-        carId: carId,
-        buyerId: req.user.id,
-        sellerId: car.sellerId
+        carId: parsedCarId,
+        buyerId: currentUserId,
+        sellerId: sellerId
       });
 
       chat = await Chat.findByPk(chat.id, {

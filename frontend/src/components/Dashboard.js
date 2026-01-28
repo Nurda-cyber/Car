@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import ThemeContext from '../context/ThemeContext';
 import CarsList from './CarsList';
@@ -16,7 +16,14 @@ const Dashboard = () => {
   const { user, logout, fetchUser } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState(user?.role === 'admin' ? 'admin' : 'cars');
+  const location = useLocation();
+
+  // Позволяем приходить на дашборд с заранее выбранной вкладкой через location.state.activeTab
+  const initialTab =
+    location.state?.activeTab ||
+    (user?.role === 'admin' ? 'admin' : 'cars');
+
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Обновляем данные пользователя при переключении на вкладки баланса или корзины
   const handleTabChange = (tab) => {
