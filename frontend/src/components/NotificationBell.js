@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
+import { WS_URL } from '../config';
 import './NotificationBell.css';
 
 const NotificationBell = () => {
@@ -15,7 +16,7 @@ const NotificationBell = () => {
 
     // Подключаемся к Socket.io для real-time уведомлений
     const token = localStorage.getItem('token');
-    const socket = io('http://localhost:5000', {
+    const socket = io(WS_URL, {
       auth: { token }
     });
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import AuthContext from '../context/AuthContext';
+import { WS_URL } from '../config';
 import './Chat.css';
 
 // Chat может работать в двух режимах:
@@ -84,7 +85,7 @@ const Chat = ({ carId, sellerId, chatId, initialChat, initialMessages, onClose }
       return;
     }
 
-    const newSocket = io('http://localhost:5000', {
+    const newSocket = io(WS_URL, {
       auth: { token },
       transports: ['websocket', 'polling']
     });

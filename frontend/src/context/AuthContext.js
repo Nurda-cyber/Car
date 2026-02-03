@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config';
 
 const AuthContext = createContext();
 
@@ -8,9 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Настройка axios для отправки токена в заголовках
-  // baseURL должен быть без /api, так как мы используем proxy или добавляем /api в запросах
-  axios.defaults.baseURL = 'http://localhost:5000';
+  // baseURL: в Docker пустой (nginx проксирует), локально задаётся через REACT_APP_API_URL
+  axios.defaults.baseURL = API_BASE || undefined;
   
   useEffect(() => {
     const token = localStorage.getItem('token');

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { API_BASE } from '../config';
 import ShareButton from './ShareButton';
 import CarValuation from './CarValuation';
 import PriceDropAlert from './PriceDropAlert';
@@ -117,7 +118,7 @@ const CarDetail = () => {
                 {car.photos.map((photo, index) => (
                   <img
                     key={index}
-                    src={`http://localhost:5000${photo}`}
+                    src={`${API_BASE}${photo}`}
                     alt={`${car.brand} ${car.model} - фото ${index + 1}`}
                     className="car-photo"
                   />

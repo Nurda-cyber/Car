@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import io from 'socket.io-client';
 import AuthContext from '../context/AuthContext';
+import { API_BASE, WS_URL } from '../config';
 import Chat from './Chat';
 import './ChatList.css';
 
@@ -20,7 +21,7 @@ const ChatList = () => {
     // Инициализируем Socket.io для real-time обновлений
     const token = localStorage.getItem('token');
     if (token) {
-      const socket = io('http://localhost:5000', {
+      const socket = io(WS_URL, {
         auth: { token },
         transports: ['websocket', 'polling']
       });
@@ -135,7 +136,7 @@ const ChatList = () => {
                   <div className="chat-item-image">
                     {chat.car?.photos && chat.car.photos.length > 0 ? (
                       <img
-                        src={`http://localhost:5000${chat.car.photos[0]}`}
+                        src={`${API_BASE}${chat.car.photos[0]}`}
                         alt={`${chat.car.brand} ${chat.car.model}`}
                       />
                     ) : (

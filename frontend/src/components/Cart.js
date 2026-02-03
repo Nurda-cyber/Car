@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { API_BASE } from '../config';
 import './Cart.css';
 
 const Cart = () => {
@@ -122,7 +123,7 @@ const Cart = () => {
                 <div className="cart-item-image">
                   {item.car?.photos && item.car.photos.length > 0 ? (
                     <img 
-                      src={`http://localhost:5000${item.car.photos[0]}`} 
+                      src={`${API_BASE}${item.car.photos[0]}`} 
                       alt={`${item.car.brand} ${item.car.model}`} 
                     />
                   ) : (

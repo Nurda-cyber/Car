@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config';
 import axios from 'axios';
 import './Map.css';
 
@@ -87,7 +88,7 @@ const Map = () => {
                 <div className="car-list-image">
                   {car.photos && car.photos.length > 0 ? (
                     <img 
-                      src={`http://localhost:5000${car.photos[0]}`} 
+                      src={`${API_BASE}${car.photos[0]}`} 
                       alt={`${car.brand} ${car.model}`} 
                     />
                   ) : (
@@ -112,7 +113,7 @@ const Map = () => {
             <div className="popup-image">
               {selectedCar.photos && selectedCar.photos.length > 0 ? (
                 <img 
-                  src={`http://localhost:5000${selectedCar.photos[0]}`} 
+                  src={`${API_BASE}${selectedCar.photos[0]}`} 
                   alt={`${selectedCar.brand} ${selectedCar.model}`} 
                 />
               ) : (

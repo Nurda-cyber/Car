@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { API_BASE } from '../config';
 import './CarsList.css';
 
 const CarsList = () => {
@@ -260,7 +261,7 @@ const CarsList = () => {
             <div key={car.id} className="car-card" onClick={() => navigate(`/car/${car.id}`)}>
               <div className="car-image">
                 {car.photos && car.photos.length > 0 ? (
-                  <img src={`http://localhost:5000${car.photos[0]}`} alt={`${car.brand} ${car.model}`} />
+                  <img src={`${API_BASE}${car.photos[0]}`} alt={`${car.brand} ${car.model}`} />
                 ) : (
                   <div className="no-image">Нет фото</div>
                 )}

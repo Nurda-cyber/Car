@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { API_BASE } from '../config';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import './Profile.css';
@@ -432,7 +433,7 @@ const Profile = () => {
                       <div className="favorite-car-image">
                         {car.photos && car.photos.length > 0 ? (
                           <img 
-                            src={`http://localhost:5000${car.photos[0]}`} 
+                            src={`${API_BASE}${car.photos[0]}`} 
                             alt={`${car.brand} ${car.model}`} 
                           />
                         ) : (
@@ -482,7 +483,7 @@ const Profile = () => {
                       <div className="favorite-car-image">
                         {purchase.car && purchase.car.photos && purchase.car.photos.length > 0 ? (
                           <img 
-                            src={`http://localhost:5000${purchase.car.photos[0]}`} 
+                            src={`${API_BASE}${purchase.car.photos[0]}`} 
                             alt={`${purchase.car.brand} ${purchase.car.model}`} 
                           />
                         ) : (

@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: carpro-backend
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      # Подключение к PostgreSQL на вашем компьютере (не в Docker)
+      DB_HOST: ${DB_HOST:-host.docker.internal}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-authapp}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production}
+      FRONTEND_URL: http://localhost
+    volumes:
+      - backend_uploads:/app/uploads
+    # На Linux, если host.docker.internal нет: задайте DB_HOST=IP_вашего_хоста в .env
+
+  frontend:
+    build: ./frontend
+    container_name: carpro-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend_uploads:

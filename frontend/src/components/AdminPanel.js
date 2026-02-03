@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -389,7 +390,7 @@ const AdminPanel = () => {
                 <div className="photos-grid">
                   {editingCar.photos.map((photo, index) => (
                     <div key={index} className="photo-item">
-                      <img src={`http://localhost:5000${photo}`} alt={`Фото ${index + 1}`} />
+                      <img src={`${API_BASE}${photo}`} alt={`Фото ${index + 1}`} />
                       <button
                         type="button"
                         onClick={() => handleDeletePhoto(editingCar.id, index)}
