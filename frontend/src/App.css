@@ -2,3 +2,8 @@
   min-height: 100vh;
   width: 100%;
 }
+
+/* Плавное появление основного содержимого */
+.App > * {
+  animation: fadeInUp var(--animate-duration) var(--animate-ease-out);
+}
