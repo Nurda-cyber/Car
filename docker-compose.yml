@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  minio:
+    image: minio/minio:latest
+    container_name: carpro-minio
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
   backend:
     build: ./backend
     container_name: carpro-backend
@@ -15,8 +28,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production}
       FRONTEND_URL: http://localhost
+      # MinIO (опционально, для хранения файлов в S3-совместимом хранилище)
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-carpro-uploads}
     volumes:
       - backend_uploads:/app/uploads
+    depends_on:
+      - minio
     # На Linux, если host.docker.internal нет: задайте DB_HOST=IP_вашего_хоста в .env
 
   frontend:
@@ -29,3 +49,4 @@ services:
 
 volumes:
   backend_uploads:
+  minio_data:

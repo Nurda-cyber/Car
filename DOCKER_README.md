@@ -30,6 +30,8 @@ docker-compose up --build
 После старта:
 
 - **Сайт:** http://localhost (порт 80)
+- **MinIO S3 API:** http://localhost:9000
+- **MinIO Web Console:** http://localhost:9001 (логин/пароль — см. переменные `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD`)
 
 ## Остановка
 
@@ -37,7 +39,7 @@ docker-compose up --build
 docker-compose down
 ```
 
-Загрузки (фото машин) хранятся в томе `backend_uploads`. Чтобы удалить и их:
+Загрузки (фото машин) хранятся в томе `backend_uploads`, данные MinIO — в томе `minio_data`. Чтобы удалить и их:
 
 ```bash
 docker-compose down -v
@@ -55,5 +57,8 @@ docker-compose down -v
 | `DB_USER`       | Пользователь PostgreSQL          | `postgres`             |
 | `DB_PASSWORD`   | Пароль PostgreSQL                | `postgres`             |
 | `JWT_SECRET`    | Секрет для JWT                   | (значение в compose)   |
+| `MINIO_ROOT_USER` | Логин MinIO (консоль и S3)     | `minioadmin`           |
+| `MINIO_ROOT_PASSWORD` | Пароль MinIO               | `minioadmin`           |
+| `MINIO_BUCKET`  | Имя бакета для загрузок (если бэкенд использует MinIO) | `carpro-uploads` |
 
 **На Linux:** если `host.docker.internal` не работает, задайте `DB_HOST=172.17.0.1` или IP вашего хоста в сети Docker.
