@@ -17,8 +17,16 @@
 
 .header-actions {
   display: flex;
+  flex-wrap: nowrap;
   gap: 12px;
   align-items: center;
+}
+
+.header-actions-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
 }
 
 .btn-theme-toggle {

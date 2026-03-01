@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import io from 'socket.io-client';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import { API_BASE, WS_URL } from '../config';
 import Chat from './Chat';
 import './ChatList.css';
 
 const ChatList = () => {
   const navigate = useNavigate();
-  const { user } = React.useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,29 +97,29 @@ const ChatList = () => {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'только что';
-    if (minutes < 60) return `${minutes} мин назад`;
-    if (hours < 24) return `${hours} ч назад`;
-    if (days < 7) return `${days} дн назад`;
+    if (minutes < 1) return t('common.justNow');
+    if (minutes < 60) return `${minutes} ${t('common.minutesAgo')}`;
+    if (hours < 24) return `${hours} ${t('common.hoursAgo')}`;
+    if (days < 7) return `${days} ${t('common.daysAgo')}`;
     return date.toLocaleDateString('kk-KZ');
   };
 
   if (loading) {
-    return <div className="chat-list-loading">Загрузка чатов...</div>;
+    return <div className="chat-list-loading">{t('chat.loading')}</div>;
   }
 
   return (
     <div className="chat-list-container">
       <div className="chat-list-sidebar">
         <div className="chat-list-header">
-          <h2>💬 Мои чаты</h2>
+          <h2>💬 {t('chat.myChats')}</h2>
         </div>
 
         {chats.length === 0 ? (
           <div className="chat-list-empty">
-            <p>У вас пока нет чатов</p>
+            <p>{t('chat.noChatsHint')}</p>
             <button onClick={() => navigate('/dashboard')}>
-              Перейти к каталогу
+              {t('chat.goToCatalog')}
             </button>
           </div>
         ) : (
@@ -145,7 +147,7 @@ const ChatList = () => {
                   </div>
                   <div className="chat-item-info">
                     <div className="chat-item-header">
-                      <h4>{otherUser?.name || 'Пользователь'}</h4>
+                      <h4>{otherUser?.name || t('chat.user')}</h4>
                       {chat.unreadCount > 0 && (
                         <span className="chat-unread-badge">{chat.unreadCount}</span>
                       )}

@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
+import LanguageContext from '../context/LanguageContext';
 import { WS_URL } from '../config';
 import './NotificationBell.css';
 
 const NotificationBell = () => {
+  const { t } = useContext(LanguageContext);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -138,10 +140,10 @@ const NotificationBell = () => {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'только что';
-    if (minutes < 60) return `${minutes} мин назад`;
-    if (hours < 24) return `${hours} ч назад`;
-    if (days < 7) return `${days} дн назад`;
+    if (minutes < 1) return t('common.justNow');
+    if (minutes < 60) return `${minutes} ${t('common.minutesAgo')}`;
+    if (hours < 24) return `${hours} ${t('common.hoursAgo')}`;
+    if (days < 7) return `${days} ${t('common.daysAgo')}`;
     return date.toLocaleDateString('kk-KZ');
   };
 
@@ -150,7 +152,7 @@ const NotificationBell = () => {
       <button
         className="notification-bell"
         onClick={() => setShowDropdown(!showDropdown)}
-        title="Уведомления"
+        title={t('notifications.title')}
       >
         🔔
         {unreadCount > 0 && (
@@ -161,10 +163,10 @@ const NotificationBell = () => {
       {showDropdown && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <h3>Уведомления</h3>
+            <h3>{t('notifications.title')}</h3>
             {unreadCount > 0 && (
               <button className="mark-all-read" onClick={markAllAsRead}>
-                Отметить все как прочитанные
+                {t('notifications.markAllRead')}
               </button>
             )}
           </div>
@@ -172,7 +174,7 @@ const NotificationBell = () => {
           <div className="notification-list">
             {notifications.length === 0 ? (
               <div className="notification-empty">
-                <p>Нет уведомлений</p>
+                <p>{t('notifications.noNotifications')}</p>
               </div>
             ) : (
               notifications.map(notification => (
@@ -196,7 +198,7 @@ const NotificationBell = () => {
                       e.stopPropagation();
                       deleteNotification(notification.id);
                     }}
-                    title="Удалить"
+                    title={t('notifications.deleteTitle')}
                   >
                     ×
                   </button>

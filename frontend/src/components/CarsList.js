@@ -2,11 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import { API_BASE } from '../config';
 import './CarsList.css';
 
 const CarsList = () => {
   const { user } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [cars, setCars] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -89,7 +91,7 @@ const CarsList = () => {
       }
     } catch (error) {
       console.error('Ошибка обновления избранного:', error);
-      setMessage({ text: error.response?.data?.message || 'Ошибка обновления избранного', type: 'error' });
+      setMessage({ text: error.response?.data?.message || t('cars.errorFavorites'), type: 'error' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     }
   };
@@ -98,11 +100,11 @@ const CarsList = () => {
     try {
       await axios.post(`/api/cart/${carId}`);
       setCartItems([...cartItems, carId]);
-      setMessage({ text: 'Автомобиль добавлен в корзину', type: 'success' });
+      setMessage({ text: t('cars.addedToCart'), type: 'success' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     } catch (error) {
       console.error('Ошибка добавления в корзину:', error);
-      setMessage({ text: error.response?.data?.message || 'Ошибка добавления в корзину', type: 'error' });
+      setMessage({ text: error.response?.data?.message || t('cars.errorAddToCart'), type: 'error' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     }
   };
@@ -117,7 +119,7 @@ const CarsList = () => {
 
   return (
     <div className="cars-list-container">
-      <h1>Каталог автомобилей</h1>
+      <h1>{t('cars.catalogTitle')}</h1>
       
       {message.text && (
         <div className={`cars-message cars-message-${message.type}`}>
@@ -126,12 +128,12 @@ const CarsList = () => {
       )}
       
       <div className="filters-panel">
-        <h2>Фильтры</h2>
+        <h2>{t('cars.filters')}</h2>
         <div className="filters-grid">
           <input
             type="text"
             name="search"
-            placeholder="Поиск по марке/модели"
+            placeholder={t('cars.searchPlaceholder')}
             value={filters.search}
             onChange={handleFilterChange}
             className="filter-input"
@@ -139,7 +141,7 @@ const CarsList = () => {
           <input
             type="text"
             name="brand"
-            placeholder="Марка"
+            placeholder={t('cars.brand')}
             value={filters.brand}
             onChange={handleFilterChange}
             className="filter-input"
@@ -147,7 +149,7 @@ const CarsList = () => {
           <input
             type="text"
             name="model"
-            placeholder="Модель"
+            placeholder={t('cars.model')}
             value={filters.model}
             onChange={handleFilterChange}
             className="filter-input"
@@ -155,7 +157,7 @@ const CarsList = () => {
           <input
             type="number"
             name="minYear"
-            placeholder="Год от"
+            placeholder={t('cars.yearFrom')}
             value={filters.minYear}
             onChange={handleFilterChange}
             className="filter-input"
@@ -163,7 +165,7 @@ const CarsList = () => {
           <input
             type="number"
             name="maxYear"
-            placeholder="Год до"
+            placeholder={t('cars.yearTo')}
             value={filters.maxYear}
             onChange={handleFilterChange}
             className="filter-input"
@@ -171,7 +173,7 @@ const CarsList = () => {
           <input
             type="number"
             name="minPrice"
-            placeholder="Цена от"
+            placeholder={t('cars.priceFrom')}
             value={filters.minPrice}
             onChange={handleFilterChange}
             className="filter-input"
@@ -179,7 +181,7 @@ const CarsList = () => {
           <input
             type="number"
             name="maxPrice"
-            placeholder="Цена до"
+            placeholder={t('cars.priceTo')}
             value={filters.maxPrice}
             onChange={handleFilterChange}
             className="filter-input"
@@ -190,10 +192,10 @@ const CarsList = () => {
             onChange={handleFilterChange}
             className="filter-input"
           >
-            <option value="">Все коробки</option>
-            <option value="manual">Механическая</option>
-            <option value="automatic">Автоматическая</option>
-            <option value="cvt">Вариатор</option>
+            <option value="">{t('cars.allTransmissions')}</option>
+            <option value="manual">{t('cars.manual')}</option>
+            <option value="automatic">{t('cars.automatic')}</option>
+            <option value="cvt">{t('cars.cvt')}</option>
           </select>
           <select
             name="fuelType"
@@ -201,11 +203,11 @@ const CarsList = () => {
             onChange={handleFilterChange}
             className="filter-input"
           >
-            <option value="">Все типы топлива</option>
-            <option value="petrol">Бензин</option>
-            <option value="diesel">Дизель</option>
-            <option value="electric">Электрический</option>
-            <option value="hybrid">Гибрид</option>
+            <option value="">{t('cars.allFuel')}</option>
+            <option value="petrol">{t('cars.petrol')}</option>
+            <option value="diesel">{t('cars.diesel')}</option>
+            <option value="electric">{t('cars.electric')}</option>
+            <option value="hybrid">{t('cars.hybrid')}</option>
           </select>
           <select
             name="city"
@@ -213,7 +215,7 @@ const CarsList = () => {
             onChange={handleFilterChange}
             className="filter-input"
           >
-            <option value="">Все города</option>
+            <option value="">{t('cars.allCities')}</option>
             <option value="Алматы">Алматы</option>
             <option value="Астана">Астана</option>
             <option value="Шымкент">Шымкент</option>
@@ -241,20 +243,20 @@ const CarsList = () => {
             onChange={handleFilterChange}
             className="filter-input"
           >
-            <option value="">Сортировка</option>
-            <option value="city">По городу (А-Я)</option>
-            <option value="price_asc">По цене (возрастание)</option>
-            <option value="price_desc">По цене (убывание)</option>
-            <option value="year_desc">По году (новые)</option>
-            <option value="year_asc">По году (старые)</option>
+            <option value="">{t('cars.sortBy')}</option>
+            <option value="city">{t('cars.sortCity')}</option>
+            <option value="price_asc">{t('cars.sortPriceAsc')}</option>
+            <option value="price_desc">{t('cars.sortPriceDesc')}</option>
+            <option value="year_desc">{t('cars.sortYearNew')}</option>
+            <option value="year_asc">{t('cars.sortYearOld')}</option>
           </select>
         </div>
       </div>
 
       {loading ? (
-        <div className="loading">Загрузка...</div>
+        <div className="loading">{t('common.loading')}</div>
       ) : cars.length === 0 ? (
-        <div className="no-cars">Автомобили не найдены</div>
+        <div className="no-cars">{t('cars.noCars')}</div>
       ) : (
         <div className="cars-grid">
           {cars.map(car => (
@@ -263,7 +265,7 @@ const CarsList = () => {
                 {car.photos && car.photos.length > 0 ? (
                   <img src={`${API_BASE}${car.photos[0]}`} alt={`${car.brand} ${car.model}`} />
                 ) : (
-                  <div className="no-image">Нет фото</div>
+                  <div className="no-image">{t('common.noPhoto')}</div>
                 )}
                 <button
                   className={`favorite-btn ${favorites.includes(car.id) ? 'active' : ''}`}
@@ -271,14 +273,14 @@ const CarsList = () => {
                     e.stopPropagation();
                     toggleFavorite(car.id);
                   }}
-                  title={favorites.includes(car.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                  title={favorites.includes(car.id) ? t('cars.removeFromFavorites') : t('cars.addToFavorites')}
                 >
                   ❤️
                 </button>
               </div>
               <div className="car-info">
                 <h3>{car.brand} {car.model}</h3>
-                <p className="car-year">{car.year} год</p>
+                <p className="car-year">{car.year} {t('common.year')}</p>
                 <p className="car-price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</p>
                 
                 {/* Оценка автомобиля (5 звезд) - всегда отображается */}
@@ -295,7 +297,7 @@ const CarsList = () => {
                         <span
                           key={star}
                           className={`star ${isFilled ? 'filled' : ''}`}
-                          title={`${avgRating > 0 ? avgRating.toFixed(1) : 'Нет оценок'}`}
+                          title={`${avgRating > 0 ? avgRating.toFixed(1) : t('cars.noRatings')}`}
                         >
                           ⭐
                         </span>
@@ -315,32 +317,32 @@ const CarsList = () => {
                     </>
                   ) : (
                     <span className="car-rating-no-rating">
-                      Нет оценок
+                      {t('cars.noRatings')}
                     </span>
                   )}
                 </div>
                 
                 {car.views !== undefined && car.views !== null && (
-                  <p className="car-views">👁️ Просмотров: {car.views.toLocaleString('kk-KZ')}</p>
+                  <p className="car-views">👁️ {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
                 )}
                 {car.city && (
-                  <p className="car-city">📍 Город: {car.city}</p>
+                  <p className="car-city">📍 {t('cars.city')}: {car.city}</p>
                 )}
                 {car.distance !== null && car.distance !== undefined && (
-                  <p className="car-distance">📍 Расстояние: {car.distance} км</p>
+                  <p className="car-distance">📍 {t('cars.distance')}: {car.distance} км</p>
                 )}
-                {car.mileage && <p className="car-mileage">Пробег: {car.mileage.toLocaleString()} км</p>}
+                {car.mileage && <p className="car-mileage">{t('cars.mileage')}: {car.mileage.toLocaleString()} км</p>}
                 {car.transmission && (
                   <p className="car-detail">
-                    КПП: {car.transmission === 'manual' ? 'Механическая' : 
-                          car.transmission === 'automatic' ? 'Автоматическая' : 'Вариатор'}
+                    {t('cars.transmission')}: {car.transmission === 'manual' ? t('cars.manual') : 
+                          car.transmission === 'automatic' ? t('cars.automatic') : t('cars.cvt')}
                   </p>
                 )}
                 {car.fuelType && (
                   <p className="car-detail">
-                    Топливо: {car.fuelType === 'petrol' ? 'Бензин' :
-                              car.fuelType === 'diesel' ? 'Дизель' :
-                              car.fuelType === 'electric' ? 'Электрический' : 'Гибрид'}
+                    {t('cars.fuel')}: {car.fuelType === 'petrol' ? t('cars.petrol') :
+                              car.fuelType === 'diesel' ? t('cars.diesel') :
+                              car.fuelType === 'electric' ? t('cars.electric') : t('cars.hybrid')}
                   </p>
                 )}
                 <button
@@ -350,9 +352,9 @@ const CarsList = () => {
                     addToCart(car.id);
                   }}
                   disabled={cartItems.includes(car.id) || car.status === 'sold'}
-                  title={cartItems.includes(car.id) ? 'Уже в корзине' : car.status === 'sold' ? 'Автомобиль продан' : 'Добавить в корзину'}
+                  title={cartItems.includes(car.id) ? t('cars.inCartTitle') : car.status === 'sold' ? t('cars.soldTitle') : t('cars.addToCart')}
                 >
-                  {cartItems.includes(car.id) ? '✓ В корзине' : '🛒 В корзину'}
+                  {cartItems.includes(car.id) ? t('cars.inCart') : `🛒 ${t('cars.addToCart')}`}
                 </button>
               </div>
             </div>

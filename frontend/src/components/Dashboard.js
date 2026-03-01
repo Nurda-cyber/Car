@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import ThemeContext from '../context/ThemeContext';
 import CarsList from './CarsList';
 import AdminPanel from './AdminPanel';
@@ -10,10 +11,12 @@ import Balance from './Balance';
 import SellCar from './SellCar';
 import ChatList from './ChatList';
 import NotificationBell from './NotificationBell';
+import LanguageSwitcher from './LanguageSwitcher';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout, fetchUser } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,21 +50,25 @@ const Dashboard = () => {
         <div className="header-actions">
           <NotificationBell />
           <button
+            type="button"
             className="btn-theme-toggle"
             onClick={toggleTheme}
-            title={theme === 'light' ? 'Переключить на темный режим' : 'Переключить на светлый режим'}
+            title={theme === 'light' ? t('nav.themeDark') : t('nav.themeLight')}
           >
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
-          <button
-            className={`btn-profile ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
-            👤 Профиль
-          </button>
-          <button onClick={handleLogout} className="btn-logout">
-            Выйти
-          </button>
+          <LanguageSwitcher />
+          <div className="header-actions-right">
+            <button
+              className={`btn-profile ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              👤 {t('nav.profile')}
+            </button>
+            <button onClick={handleLogout} className="btn-logout">
+              {t('nav.logout')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -70,38 +77,38 @@ const Dashboard = () => {
           className={`tab ${activeTab === 'cars' ? 'active' : ''}`}
           onClick={() => handleTabChange('cars')}
         >
-          🚗 Каталог
+          🚗 {t('nav.catalog')}
         </button>
         <button
           className={`tab ${activeTab === 'sell' ? 'active' : ''}`}
           onClick={() => handleTabChange('sell')}
         >
-          🚙 Продать
+          🚙 {t('nav.sell')}
         </button>
         <button
           className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
           onClick={() => handleTabChange('cart')}
         >
-          🛒 Корзина
+          🛒 {t('nav.cart')}
         </button>
         <button
           className={`tab ${activeTab === 'balance' ? 'active' : ''}`}
           onClick={() => handleTabChange('balance')}
         >
-          💰 Баланс
+          💰 {t('nav.balance')}
         </button>
         <button
           className={`tab ${activeTab === 'chats' ? 'active' : ''}`}
           onClick={() => handleTabChange('chats')}
         >
-          💬 Чаты
+          💬 {t('nav.chats')}
         </button>
         {user?.role === 'admin' && (
           <button
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
             onClick={() => handleTabChange('admin')}
           >
-            ⚙️ Админ-панель
+            ⚙️ {t('nav.adminPanel')}
           </button>
         )}
       </div>

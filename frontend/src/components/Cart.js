@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import { API_BASE } from '../config';
 import './Cart.css';
 
 const Cart = () => {
   const { user, fetchUser } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +30,7 @@ const Cart = () => {
       }
     } catch (error) {
       console.error('Ошибка загрузки корзины:', error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Ошибка загрузки корзины';
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || t('cart.errorLoad');
       setError(errorMessage);
       setCartItems([]);
     } finally {
@@ -40,10 +42,10 @@ const Cart = () => {
     try {
       await axios.delete(`/api/cart/${carId}`);
       setCartItems(cartItems.filter(item => item.carId !== carId));
-      setSuccess('Автомобиль удален из корзины');
+      setSuccess(t('cart.removedFromCart'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      setError(error.response?.data?.message || 'Ошибка удаления из корзины');
+      setError(error.response?.data?.message || t('cart.errorRemove'));
       setTimeout(() => setError(''), 3000);
     }
   };
@@ -77,7 +79,7 @@ const Cart = () => {
     } catch (error) {
       console.error('[FRONTEND] Ошибка покупки:', error);
       console.error('[FRONTEND] Детали ошибки:', error.response?.data);
-      const message = error.response?.data?.message || 'Ошибка покупки';
+      const message = error.response?.data?.message || t('cart.errorCheckout');
       setError(message);
       await fetchCart(); // Обновляем корзину после ошибки
       setTimeout(() => setError(''), 5000);
@@ -97,13 +99,13 @@ const Cart = () => {
   const canAfford = userBalance >= totalPrice;
 
   if (loading) {
-    return <div className="cart-loading">Загрузка корзины...</div>;
+    return <div className="cart-loading">{t('cart.loading')}</div>;
   }
 
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <h1>🛒 Корзина</h1>
+        <h1>🛒 {t('cart.title')}</h1>
       </div>
 
       {error && <div className="cart-alert cart-alert-error">{error}</div>}
@@ -112,8 +114,8 @@ const Cart = () => {
       {cartItems.length === 0 ? (
         <div className="cart-empty">
           <div className="empty-icon">🛒</div>
-          <h2>Корзина пуста</h2>
-          <p>Добавьте автомобили в корзину для покупки</p>
+          <h2>{t('cart.empty')}</h2>
+          <p>{t('cart.emptyHint')}</p>
         </div>
       ) : (
         <>
@@ -127,19 +129,19 @@ const Cart = () => {
                       alt={`${item.car.brand} ${item.car.model}`} 
                     />
                   ) : (
-                    <div className="no-image">Нет фото</div>
+                    <div className="no-image">{t('common.noPhoto')}</div>
                   )}
                 </div>
                 <div className="cart-item-info">
                   <h3>{item.car?.brand} {item.car?.model}</h3>
-                  <p className="cart-item-year">{item.car?.year} год</p>
+                  <p className="cart-item-year">{item.car?.year} {t('common.year')}</p>
                   {item.car?.mileage && (
-                    <p className="cart-item-mileage">Пробег: {item.car.mileage.toLocaleString()} км</p>
+                    <p className="cart-item-mileage">{t('cars.mileage')}: {item.car.mileage.toLocaleString()} км</p>
                   )}
                   {item.car?.transmission && (
                     <p className="cart-item-detail">
-                      КПП: {item.car.transmission === 'manual' ? 'Механическая' : 
-                            item.car.transmission === 'automatic' ? 'Автоматическая' : 'Вариатор'}
+                      {t('cars.transmission')}: {item.car.transmission === 'manual' ? t('cars.manual') : 
+                            item.car.transmission === 'automatic' ? t('cars.automatic') : t('cars.cvt')}
                     </p>
                   )}
                 </div>
@@ -148,7 +150,7 @@ const Cart = () => {
                   <button 
                     className="btn-remove-from-cart"
                     onClick={() => removeFromCart(item.carId)}
-                    title="Удалить из корзины"
+                    title={t('cart.removeFromCart')}
                   >
                     🗑️
                   </button>
@@ -159,12 +161,12 @@ const Cart = () => {
 
           <div className="cart-summary">
             <div className="summary-row">
-              <span className="summary-label">Итого:</span>
+              <span className="summary-label">{t('cart.total')}</span>
               <span className="summary-total">{totalPrice.toLocaleString('kk-KZ')} ₸</span>
             </div>
             {!canAfford && (
               <div className="insufficient-funds">
-                ⚠️ Недостаточно средств. Не хватает: {(totalPrice - userBalance).toLocaleString('kk-KZ')} ₸
+                ⚠️ {t('cart.insufficientFunds')}. {t('cart.insufficientHint')} {(totalPrice - userBalance).toLocaleString('kk-KZ')} ₸
               </div>
             )}
             <button 
@@ -172,7 +174,7 @@ const Cart = () => {
               onClick={checkout}
               disabled={!canAfford}
             >
-              {canAfford ? '💳 Купить' : 'Недостаточно средств'}
+              {canAfford ? `💳 ${t('cart.buy')}` : t('cart.insufficientFunds')}
             </button>
           </div>
         </>

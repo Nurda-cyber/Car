@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import LanguageContext from '../context/LanguageContext';
 import './SellCar.css';
 
 const SellCar = () => {
+  const { t } = useContext(LanguageContext);
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
@@ -35,22 +37,20 @@ const SellCar = () => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 10) {
-      setError('Можно загрузить максимум 10 фотографий');
+      setError(t('sell.maxPhotos'));
       return;
     }
 
-    // Проверка размера файлов
     const invalidFiles = files.filter(file => file.size > 5 * 1024 * 1024);
     if (invalidFiles.length > 0) {
-      setError('Размер каждого файла не должен превышать 5MB');
+      setError(t('sell.maxFileSize'));
       return;
     }
 
-    // Проверка типа файлов
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const invalidTypes = files.filter(file => !allowedTypes.includes(file.type));
     if (invalidTypes.length > 0) {
-      setError('Разрешены только изображения (jpeg, jpg, png, gif, webp)');
+      setError(t('sell.allowedImages'));
       return;
     }
 
@@ -64,9 +64,8 @@ const SellCar = () => {
     setSuccess('');
     setLoading(true);
 
-    // Валидация
     if (!formData.brand || !formData.model || !formData.year || !formData.price) {
-      setError('Заполните все обязательные поля: марка, модель, год, цена');
+      setError(t('sell.fillRequired'));
       setLoading(false);
       return;
     }
@@ -74,21 +73,21 @@ const SellCar = () => {
     const yearNum = parseInt(formData.year);
     const currentYear = new Date().getFullYear();
     if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
-      setError(`Год должен быть от 1900 до ${currentYear + 1}`);
+      setError(`${t('sell.yearRange')} ${currentYear + 1}`);
       setLoading(false);
       return;
     }
 
     const priceNum = parseFloat(formData.price);
     if (isNaN(priceNum) || priceNum <= 0) {
-      setError('Цена должна быть положительным числом');
+      setError(t('sell.pricePositive'));
       setLoading(false);
       return;
     }
 
     const mileageNum = parseInt(formData.mileage);
     if (isNaN(mileageNum) || mileageNum < 0) {
-      setError('Пробег должен быть неотрицательным числом');
+      setError(t('sell.mileageNonNegative'));
       setLoading(false);
       return;
     }
@@ -119,7 +118,7 @@ const SellCar = () => {
         }
       });
 
-      setSuccess(response.data.message || 'Объявление успешно создано и отправлено на модерацию');
+      setSuccess(response.data.message || t('sell.successMessage'));
       
       // Очищаем форму
       setFormData({
@@ -145,7 +144,7 @@ const SellCar = () => {
       }
     } catch (error) {
       console.error('Ошибка создания объявления:', error);
-      setError(error.response?.data?.message || 'Ошибка создания объявления');
+      setError(error.response?.data?.message || t('sell.errorCreate'));
     } finally {
       setLoading(false);
     }
@@ -154,8 +153,8 @@ const SellCar = () => {
   return (
     <div className="sell-car-container">
       <div className="sell-car-header">
-        <h1>Продать автомобиль</h1>
-        <p className="sell-car-subtitle">Заполните форму для размещения объявления о продаже автомобиля</p>
+        <h1>{t('sell.title')}</h1>
+        <p className="sell-car-subtitle">{t('sell.subtitle')}</p>
       </div>
 
       <div className="sell-car-content">
@@ -172,10 +171,10 @@ const SellCar = () => {
 
         <form onSubmit={handleSubmit} className="sell-car-form">
           <div className="form-section">
-            <h2>Основная информация</h2>
+            <h2>{t('sell.mainInfo')}</h2>
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="brand">Марка *</label>
+                <label htmlFor="brand">{t('sell.brandRequired')}</label>
                 <input
                   type="text"
                   id="brand"
@@ -183,12 +182,12 @@ const SellCar = () => {
                   value={formData.brand}
                   onChange={handleInputChange}
                   required
-                  placeholder="Например: Toyota"
+                  placeholder={t('sell.placeholderBrand')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="model">Модель *</label>
+                <label htmlFor="model">{t('sell.modelRequired')}</label>
                 <input
                   type="text"
                   id="model"
@@ -196,12 +195,12 @@ const SellCar = () => {
                   value={formData.model}
                   onChange={handleInputChange}
                   required
-                  placeholder="Например: Camry"
+                  placeholder={t('sell.placeholderModel')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="year">Год выпуска *</label>
+                <label htmlFor="year">{t('sell.yearRequired')}</label>
                 <input
                   type="number"
                   id="year"
@@ -211,12 +210,12 @@ const SellCar = () => {
                   required
                   min="1900"
                   max={new Date().getFullYear() + 1}
-                  placeholder="2020"
+                  placeholder={t('sell.placeholderYear')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="price">Цена (₸) *</label>
+                <label htmlFor="price">{t('sell.priceRequired')}</label>
                 <input
                   type="number"
                   id="price"
@@ -226,12 +225,12 @@ const SellCar = () => {
                   required
                   min="0"
                   step="0.01"
-                  placeholder="5000000"
+                  placeholder={t('sell.placeholderPrice')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="mileage">Пробег (км)</label>
+                <label htmlFor="mileage">{t('sell.mileageLabel')}</label>
                 <input
                   type="number"
                   id="mileage"
@@ -239,79 +238,79 @@ const SellCar = () => {
                   value={formData.mileage}
                   onChange={handleInputChange}
                   min="0"
-                  placeholder="50000"
+                  placeholder={t('sell.placeholderMileage')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="color">Цвет</label>
+                <label htmlFor="color">{t('sell.colorLabel')}</label>
                 <input
                   type="text"
                   id="color"
                   name="color"
                   value={formData.color}
                   onChange={handleInputChange}
-                  placeholder="Например: Черный"
+                  placeholder={t('sell.placeholderColor')}
                 />
               </div>
             </div>
           </div>
 
           <div className="form-section">
-            <h2>Технические характеристики</h2>
+            <h2>{t('sell.techSpecs')}</h2>
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="engine">Двигатель</label>
+                <label htmlFor="engine">{t('sell.engineLabel')}</label>
                 <input
                   type="text"
                   id="engine"
                   name="engine"
                   value={formData.engine}
                   onChange={handleInputChange}
-                  placeholder="Например: 2.0L"
+                  placeholder={t('sell.placeholderEngine')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="transmission">Коробка передач</label>
+                <label htmlFor="transmission">{t('sell.transmissionLabel')}</label>
                 <select
                   id="transmission"
                   name="transmission"
                   value={formData.transmission}
                   onChange={handleInputChange}
                 >
-                  <option value="">Выберите</option>
-                  <option value="manual">Механическая</option>
-                  <option value="automatic">Автоматическая</option>
-                  <option value="cvt">Вариатор</option>
+                  <option value="">{t('common.select')}</option>
+                  <option value="manual">{t('cars.manual')}</option>
+                  <option value="automatic">{t('cars.automatic')}</option>
+                  <option value="cvt">{t('cars.cvt')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="fuelType">Тип топлива</label>
+                <label htmlFor="fuelType">{t('sell.fuelLabel')}</label>
                 <select
                   id="fuelType"
                   name="fuelType"
                   value={formData.fuelType}
                   onChange={handleInputChange}
                 >
-                  <option value="">Выберите</option>
-                  <option value="petrol">Бензин</option>
-                  <option value="diesel">Дизель</option>
-                  <option value="electric">Электрический</option>
-                  <option value="hybrid">Гибрид</option>
+                  <option value="">{t('common.select')}</option>
+                  <option value="petrol">{t('cars.petrol')}</option>
+                  <option value="diesel">{t('cars.diesel')}</option>
+                  <option value="electric">{t('cars.electric')}</option>
+                  <option value="hybrid">{t('cars.hybrid')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="city">Город</label>
+                <label htmlFor="city">{t('sell.cityLabel')}</label>
                 <select
                   id="city"
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
                 >
-                  <option value="">Выберите город</option>
+                  <option value="">{t('profile.selectCity')}</option>
                   <option value="Алматы">Алматы</option>
                   <option value="Астана">Астана</option>
                   <option value="Шымкент">Шымкент</option>
@@ -338,24 +337,24 @@ const SellCar = () => {
           </div>
 
           <div className="form-section">
-            <h2>Описание</h2>
+            <h2>{t('cars.description')}</h2>
             <div className="form-group full-width">
-              <label htmlFor="description">Описание автомобиля</label>
+              <label htmlFor="description">{t('sell.descriptionLabel')}</label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 rows="5"
-                placeholder="Опишите состояние автомобиля, особенности, историю обслуживания и т.д."
+                placeholder={t('sell.descriptionPlaceholder')}
               />
             </div>
           </div>
 
           <div className="form-section">
-            <h2>Фотографии</h2>
+            <h2>{t('sell.photosSection')}</h2>
             <div className="form-group full-width">
-              <label htmlFor="photos">Загрузить фотографии (максимум 10, до 5MB каждая)</label>
+              <label htmlFor="photos">{t('sell.photosLabel')}</label>
               <input
                 type="file"
                 id="photos"
@@ -366,7 +365,7 @@ const SellCar = () => {
               />
               {selectedFiles.length > 0 && (
                 <div className="selected-files">
-                  <p>Выбрано файлов: {selectedFiles.length}</p>
+                  <p>{t('sell.filesSelected')} {selectedFiles.length}</p>
                   <ul>
                     {selectedFiles.map((file, index) => (
                       <li key={index}>{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
@@ -379,7 +378,7 @@ const SellCar = () => {
 
           <div className="form-actions">
             <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Отправка...' : 'Разместить объявление'}
+              {loading ? t('sell.submitting') : t('sell.submitBtn')}
             </button>
             <button 
               type="button" 
@@ -408,7 +407,7 @@ const SellCar = () => {
                 }
               }}
             >
-              Очистить форму
+              {t('sell.clearForm')}
             </button>
           </div>
         </form>

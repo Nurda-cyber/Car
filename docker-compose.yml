@@ -8,44 +8,50 @@ services:
       - "9000:9000"   # S3 API
       - "9001:9001"   # Web Console
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    restart: always
 
   backend:
     build: ./backend
     container_name: carpro-backend
+    ports:
+      - "5000:5000"   # 🔥 МАҢЫЗДЫ: backend портын аштық
     environment:
       NODE_ENV: production
       PORT: 5000
-      # Подключение к PostgreSQL на вашем компьютере (не в Docker)
-      DB_HOST: ${DB_HOST:-host.docker.internal}
-      DB_PORT: ${DB_PORT:-5432}
-      DB_NAME: ${DB_NAME:-authapp}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production}
+
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: authapp
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+
+      JWT_SECRET: change_this_secret_in_production
       FRONTEND_URL: http://localhost
-      # MinIO (опционально, для хранения файлов в S3-совместимом хранилище)
+
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      MINIO_BUCKET: ${MINIO_BUCKET:-carpro-uploads}
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: carpro-uploads
+
     volumes:
       - backend_uploads:/app/uploads
     depends_on:
       - minio
-    # На Linux, если host.docker.internal нет: задайте DB_HOST=IP_вашего_хоста в .env
+    restart: always
 
   frontend:
     build: ./frontend
     container_name: carpro-frontend
     ports:
-      - "80:80"
+      - "80:80"     
     depends_on:
       - backend
+    restart: always
 
 volumes:
   backend_uploads:

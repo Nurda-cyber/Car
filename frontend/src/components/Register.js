@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import './AuthForm.css';
 
 const Register = () => {
@@ -9,6 +10,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { register } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,12 +18,12 @@ const Register = () => {
     setError('');
 
     if (!name || !email || !password) {
-      setError('Пожалуйста, заполните все поля');
+      setError(t('auth.fillAllFields'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Пароль должен быть не менее 6 символов');
+      setError(t('auth.passwordMinLength'));
       return;
     }
 
@@ -36,45 +38,45 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Регистрация</h2>
+        <h2>{t('auth.register')}</h2>
         <form onSubmit={handleSubmit}>
           {error && <div className="error-message">{error}</div>}
           <div className="form-group">
-            <label>Имя</label>
+            <label>{t('auth.name')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Введите имя"
+              placeholder={t('auth.enterName')}
               required
             />
           </div>
           <div className="form-group">
-            <label>Email</label>
+            <label>{t('auth.email')}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Введите email"
+              placeholder={t('auth.enterEmail')}
               required
             />
           </div>
           <div className="form-group">
-            <label>Пароль</label>
+            <label>{t('auth.password')}</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Введите пароль (мин. 6 символов)"
+              placeholder={t('auth.passwordPlaceholder')}
               required
             />
           </div>
           <button type="submit" className="btn-primary">
-            Зарегистрироваться
+            {t('auth.registerBtn')}
           </button>
         </form>
         <p className="auth-link">
-          Уже есть аккаунт? <Link to="/login">Войти</Link>
+          {t('auth.haveAccount')} <Link to="/login">{t('auth.loginLink')}</Link>
         </p>
       </div>
     </div>

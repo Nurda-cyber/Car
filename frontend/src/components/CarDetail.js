@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import { API_BASE } from '../config';
 import ShareButton from './ShareButton';
 import CarValuation from './CarValuation';
@@ -13,7 +14,8 @@ import './CarDetail.css';
 const CarDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = React.useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const [car, setCar] = useState(null);
   const [seller, setSeller] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,17 +62,17 @@ const CarDetail = () => {
   };
 
   if (loading) {
-    return <div className="car-detail-loading">Загрузка...</div>;
+    return <div className="car-detail-loading">{t('common.loading')}</div>;
   }
 
   if (!car && !loading) {
     return (
       <div className="car-detail-error">
-        <p>Автомобиль не найден или недоступен</p>
+        <p>{t('cars.carNotFound')}</p>
         <p style={{ fontSize: '14px', color: '#999', marginTop: '8px' }}>
-          Возможно, объявление было удалено или еще не прошло модерацию.
+          {t('cars.carNotFoundHint')}
         </p>
-        <button onClick={() => navigate('/dashboard')}>Вернуться к каталогу</button>
+        <button onClick={() => navigate('/dashboard')}>{t('cars.backToCatalog')}</button>
       </div>
     );
   }
@@ -80,7 +82,7 @@ const CarDetail = () => {
   return (
     <div className="car-detail-container">
       <button className="back-button" onClick={() => navigate('/dashboard')}>
-        ← Назад к каталогу
+        ← {t('cars.backToCatalog')}
       </button>
 
       <div className="car-detail-content">
@@ -89,7 +91,7 @@ const CarDetail = () => {
             <div>
               <h1>{car.brand} {car.model}</h1>
               {car.views !== undefined && (
-                <p className="car-views">👁️ Просмотров: {car.views.toLocaleString('kk-KZ')}</p>
+                <p className="car-views">👁️ {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
               )}
             </div>
             <div className="car-detail-actions">
@@ -99,14 +101,14 @@ const CarDetail = () => {
                   className="chat-button"
                   onClick={() => setShowChat(!showChat)}
                 >
-                  💬 {showChat ? 'Закрыть чат' : 'Написать продавцу'}
+                  💬 {showChat ? t('cars.closeChat') : t('cars.writeToSeller')}
                 </button>
               ) : (
                 <button
                   className="chat-button"
                   onClick={() => navigate('/dashboard', { state: { activeTab: 'chats' } })}
                 >
-                  💬 Открыть чаты по этому авто
+                  💬 {t('cars.openChatsForCar')}
                 </button>
               )}
             </div>
@@ -125,56 +127,56 @@ const CarDetail = () => {
                 ))}
               </div>
             ) : (
-              <div className="no-photos">🚗 Нет фотографий</div>
+              <div className="no-photos">🚗 {t('cars.noPhotos')}</div>
             )}
           </div>
 
           <div className="car-detail-info">
             <div className="info-section">
-              <h3>Основная информация</h3>
+              <h3>{t('cars.mainInfo')}</h3>
               <div className="info-grid">
                 <div className="info-item">
-                  <span className="info-label">Год:</span>
+                  <span className="info-label">{t('cars.yearLabel')}:</span>
                   <span className="info-value">{car.year}</span>
                 </div>
                 <div className="info-item">
-                  <span className="info-label">Цена:</span>
+                  <span className="info-label">{t('cars.priceLabel')}:</span>
                   <span className="info-value price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</span>
                 </div>
                 {car.mileage !== undefined && (
                   <div className="info-item">
-                    <span className="info-label">Пробег:</span>
+                    <span className="info-label">{t('cars.mileageLabel')}:</span>
                     <span className="info-value">{car.mileage.toLocaleString('kk-KZ')} км</span>
                   </div>
                 )}
                 {car.color && (
                   <div className="info-item">
-                    <span className="info-label">Цвет:</span>
+                    <span className="info-label">{t('cars.colorLabel')}:</span>
                     <span className="info-value">{car.color}</span>
                   </div>
                 )}
                 {car.transmission && (
                   <div className="info-item">
-                    <span className="info-label">КПП:</span>
+                    <span className="info-label">{t('cars.transmission')}:</span>
                     <span className="info-value">
-                      {car.transmission === 'manual' ? 'Механическая' :
-                       car.transmission === 'automatic' ? 'Автоматическая' : 'Вариатор'}
+                      {car.transmission === 'manual' ? t('cars.manual') :
+                       car.transmission === 'automatic' ? t('cars.automatic') : t('cars.cvt')}
                     </span>
                   </div>
                 )}
                 {car.fuelType && (
                   <div className="info-item">
-                    <span className="info-label">Топливо:</span>
+                    <span className="info-label">{t('cars.fuel')}:</span>
                     <span className="info-value">
-                      {car.fuelType === 'petrol' ? 'Бензин' :
-                       car.fuelType === 'diesel' ? 'Дизель' :
-                       car.fuelType === 'electric' ? 'Электрический' : 'Гибрид'}
+                      {car.fuelType === 'petrol' ? t('cars.petrol') :
+                       car.fuelType === 'diesel' ? t('cars.diesel') :
+                       car.fuelType === 'electric' ? t('cars.electric') : t('cars.hybrid')}
                     </span>
                   </div>
                 )}
                 {car.city && (
                   <div className="info-item">
-                    <span className="info-label">Город:</span>
+                    <span className="info-label">{t('cars.city')}:</span>
                     <span className="info-value">{car.city}</span>
                   </div>
                 )}
@@ -183,7 +185,7 @@ const CarDetail = () => {
 
             {car.description && (
               <div className="info-section">
-                <h3>Описание</h3>
+                <h3>{t('cars.description')}</h3>
                 <p className="car-description">{car.description}</p>
               </div>
             )}
@@ -205,21 +207,21 @@ const CarDetail = () => {
               !isMyCar ? (
                 <SellerRating 
                   sellerId={car.sellerId} 
-                  sellerName={seller?.name || car.seller?.name || 'Продавец'} 
+                  sellerName={seller?.name || car.seller?.name || t('cars.seller')} 
                 />
               ) : (
                 <div className="seller-rating-container" style={{ background: '#f0f4ff' }}>
-                  <h3 className="rating-title">⭐ Рейтинг продавца</h3>
+                  <h3 className="rating-title">⭐ {t('cars.sellerRating')}</h3>
                   <p style={{ margin: 0, color: '#666', textAlign: 'center', padding: '12px' }}>
-                    ℹ️ Это ваш автомобиль. Вы не можете оценить самого себя.
+                    ℹ️ {t('cars.yourCarNoRate')}
                   </p>
                 </div>
               )
             ) : (
               <div className="seller-rating-container">
-                <h3 className="rating-title">⭐ Рейтинг продавца</h3>
+                <h3 className="rating-title">⭐ {t('cars.sellerRating')}</h3>
                 <p style={{ margin: 0, color: '#999', textAlign: 'center', padding: '12px' }}>
-                  Информация о продавце недоступна
+                  {t('cars.sellerInfoUnavailable')}
                 </p>
               </div>
             )}

@@ -2,10 +2,12 @@ import React, { useContext, useState, useEffect } from 'react';
 import { API_BASE } from '../config';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import './Profile.css';
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [favoritesList, setFavoritesList] = useState([]);
   const [showFavorites, setShowFavorites] = useState(false);
@@ -87,12 +89,12 @@ const Profile = () => {
       setFavoritesCount(favoritesCount - 1);
     } catch (error) {
       console.error('Ошибка удаления из избранного:', error);
-      alert(error.response?.data?.message || 'Ошибка удаления из избранного');
+      alert(error.response?.data?.message || t('profile.removeFromFavoritesTitle'));
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Не указано';
+    if (!dateString) return t('common.notSpecified');
     const date = new Date(dateString);
     return date.toLocaleDateString('kk-KZ', {
       year: 'numeric',
@@ -118,17 +120,17 @@ const Profile = () => {
 
     // Валидация
     if (!formData.name || !formData.email) {
-      setError('Имя и email обязательны для заполнения');
+      setError(t('profile.nameEmailRequired'));
       return;
     }
 
     if (formData.password && formData.password.length < 6) {
-      setError('Пароль должен быть не менее 6 символов');
+      setError(t('auth.passwordMinLength'));
       return;
     }
 
     if (formData.password && formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(t('profile.passwordMismatch'));
       return;
     }
 
@@ -146,7 +148,7 @@ const Profile = () => {
       if (formData.bankCard !== undefined) {
         const cardNumber = formData.bankCard.replace(/\s/g, ''); // Убираем пробелы
         if (cardNumber && (cardNumber.length < 16 || cardNumber.length > 19)) {
-          setError('Номер карты должен содержать от 16 до 19 цифр');
+          setError(t('profile.cardLengthError'));
           return;
         }
         updateData.bankCard = cardNumber || '';
@@ -158,7 +160,7 @@ const Profile = () => {
 
       const response = await axios.put('/api/auth/profile', updateData);
       updateUser(response.data.user);
-      setSuccess('Профиль успешно обновлен');
+      setSuccess(t('profile.profileUpdated'));
       setIsEditing(false);
       setFormData(prev => ({
         ...prev,
@@ -166,7 +168,7 @@ const Profile = () => {
         confirmPassword: ''
       }));
     } catch (error) {
-      setError(error.response?.data?.message || 'Ошибка обновления профиля');
+      setError(error.response?.data?.message || t('profile.profileError'));
     }
   };
 
@@ -187,7 +189,7 @@ const Profile = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <h1>Мой профиль</h1>
+        <h1>{t('profile.myProfile')}</h1>
       </div>
 
       <div className="profile-content">
@@ -197,20 +199,20 @@ const Profile = () => {
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="role-badge">
-              {user?.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}
+              {user?.role === 'admin' ? `👑 ${t('profile.admin')}` : `👤 ${t('profile.user')}`}
             </div>
           </div>
 
           <div className="profile-info">
             <div className="info-section">
               <div className="section-header">
-                <h2>Личная информация</h2>
+                <h2>{t('profile.personalInfo')}</h2>
                 {!isEditing && (
                   <button
                     className="btn-edit-profile"
                     onClick={() => setIsEditing(true)}
                   >
-                    ✏️ Редактировать
+                    ✏️ {t('profile.editProfile')}
                   </button>
                 )}
               </div>
@@ -221,7 +223,7 @@ const Profile = () => {
                   {success && <div className="alert alert-success">{success}</div>}
                   
                   <div className="form-group">
-                    <label htmlFor="name">Имя *</label>
+                    <label htmlFor="name">{t('profile.nameLabel')} *</label>
                     <input
                       type="text"
                       id="name"
@@ -233,7 +235,7 @@ const Profile = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="email">Email *</label>
+                    <label htmlFor="email">{t('profile.emailLabel')} *</label>
                     <input
                       type="email"
                       id="email"
@@ -245,56 +247,55 @@ const Profile = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="password">Новый пароль (оставьте пустым, если не хотите менять)</label>
+                    <label htmlFor="password">{t('profile.newPassword')}</label>
                     <input
                       type="password"
                       id="password"
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      placeholder="Минимум 6 символов"
+                      placeholder={t('profile.minChars')}
                     />
                   </div>
 
                   {formData.password && (
                     <div className="form-group">
-                      <label htmlFor="confirmPassword">Подтвердите пароль</label>
+                      <label htmlFor="confirmPassword">{t('profile.confirmPassword')}</label>
                       <input
                         type="password"
                         id="confirmPassword"
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        placeholder="Повторите пароль"
+                        placeholder={t('profile.repeatPassword')}
                       />
                     </div>
                   )}
 
                   <div className="form-group">
-                    <label htmlFor="bankCard">Банковская карта</label>
+                    <label htmlFor="bankCard">{t('profile.bankCard')}</label>
                     <input
                       type="text"
                       id="bankCard"
                       name="bankCard"
                       value={formData.bankCard}
                       onChange={(e) => {
-                        // Форматирование номера карты (группы по 4 цифры)
                         const value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
                         const formatted = value.match(/.{1,4}/g)?.join(' ') || value;
                         setFormData(prev => ({ ...prev, bankCard: formatted }));
                         setError('');
                         setSuccess('');
                       }}
-                      placeholder="1234 5678 9012 3456"
+                      placeholder={t('profile.cardPlaceholder')}
                       maxLength={19}
                     />
                     <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
-                      Введите номер карты (16-19 цифр)
+                      {t('profile.cardHint')}
                     </small>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="city">Город</label>
+                    <label htmlFor="city">{t('profile.cityLabel')}</label>
                     <select
                       id="city"
                       name="city"
@@ -302,7 +303,7 @@ const Profile = () => {
                       onChange={handleInputChange}
                       className="form-select"
                     >
-                      <option value="">Выберите город</option>
+                      <option value="">{t('profile.selectCity')}</option>
                       <option value="Алматы">Алматы</option>
                       <option value="Астана">Астана</option>
                       <option value="Шымкент">Шымкент</option>
@@ -325,38 +326,38 @@ const Profile = () => {
                       <option value="Рудный">Рудный</option>
                     </select>
                     <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
-                      Выберите город Казахстана для расчета расстояния до автомобилей
+                      {t('profile.cityHint')}
                     </small>
                   </div>
 
                   <div className="form-actions">
                     <button type="submit" className="btn-save">
-                      Сохранить
+                      {t('common.save')}
                     </button>
                     <button type="button" onClick={handleCancel} className="btn-cancel">
-                      Отмена
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </form>
               ) : (
                 <>
                   <div className="info-item">
-                    <span className="info-label">Имя:</span>
-                    <span className="info-value">{user?.name || 'Не указано'}</span>
+                    <span className="info-label">{t('profile.nameLabel')}:</span>
+                    <span className="info-value">{user?.name || t('common.notSpecified')}</span>
                   </div>
                   <div className="info-item">
-                    <span className="info-label">Email:</span>
-                    <span className="info-value">{user?.email || 'Не указано'}</span>
+                    <span className="info-label">{t('profile.emailLabel')}:</span>
+                    <span className="info-value">{user?.email || t('common.notSpecified')}</span>
                   </div>
                   <div className="info-item">
-                    <span className="info-label">Роль:</span>
+                    <span className="info-label">{t('profile.roleLabel')}:</span>
                     <span className="info-value">
-                      {user?.role === 'admin' ? 'Администратор' : 'Пользователь'}
+                      {user?.role === 'admin' ? t('profile.admin') : t('profile.user')}
                     </span>
                   </div>
                   {user?.bankCard && (
                     <div className="info-item">
-                      <span className="info-label">Банковская карта:</span>
+                      <span className="info-label">{t('profile.bankCard')}:</span>
                       <span className="info-value bank-card-value">
                         {user.bankCard.replace(/(.{4})/g, '$1 ').trim()}
                       </span>
@@ -364,13 +365,13 @@ const Profile = () => {
                   )}
                   {user?.city && (
                     <div className="info-item">
-                      <span className="info-label">Город:</span>
+                      <span className="info-label">{t('profile.cityLabel')}:</span>
                       <span className="info-value city-value">📍 {user.city}</span>
                     </div>
                   )}
                   {user?.createdAt && (
                     <div className="info-item">
-                      <span className="info-label">Дата регистрации:</span>
+                      <span className="info-label">{t('profile.regDate')}:</span>
                       <span className="info-value">{formatDate(user.createdAt)}</span>
                     </div>
                   )}
@@ -379,22 +380,22 @@ const Profile = () => {
             </div>
 
             <div className="info-section">
-              <h2>Статистика</h2>
+              <h2>{t('profile.stats')}</h2>
               <div className="stats-grid">
                 <div className="stat-card stat-card-clickable" onClick={handleFavoritesClick}>
                   <div className="stat-icon">❤️</div>
                   <div className="stat-info">
                     <div className="stat-value">{loading ? '...' : favoritesCount}</div>
-                    <div className="stat-label">Избранных автомобилей</div>
-                    <div className="stat-hint">Нажмите, чтобы посмотреть</div>
+                    <div className="stat-label">{t('profile.favoritesCount')}</div>
+                    <div className="stat-hint">{t('profile.clickToView')}</div>
                   </div>
                 </div>
                 <div className="stat-card stat-card-clickable" onClick={handleHistoryClick}>
                   <div className="stat-icon">🛒</div>
                   <div className="stat-info">
                     <div className="stat-value">{purchasesCount}</div>
-                    <div className="stat-label">Купленных автомобилей</div>
-                    <div className="stat-hint">Нажмите, чтобы посмотреть</div>
+                    <div className="stat-label">{t('profile.purchasedCount')}</div>
+                    <div className="stat-hint">{t('profile.clickToView')}</div>
                   </div>
                 </div>
                 <div className="stat-card">
@@ -405,7 +406,7 @@ const Profile = () => {
                         ? Math.floor((new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24))
                         : '0'}
                     </div>
-                    <div className="stat-label">Дней с нами</div>
+                    <div className="stat-label">{t('profile.daysWithUs')}</div>
                   </div>
                 </div>
               </div>
@@ -418,13 +419,13 @@ const Profile = () => {
         <div className="favorites-modal">
           <div className="favorites-modal-content">
             <div className="favorites-modal-header">
-              <h2>❤️ Избранные автомобили</h2>
+              <h2>❤️ {t('profile.favoritesTitle')}</h2>
               <button className="favorites-modal-close" onClick={() => setShowFavorites(false)}>×</button>
             </div>
             <div className="favorites-list">
               {favoritesList.length === 0 ? (
                 <div className="favorites-empty">
-                  <p>У вас пока нет избранных автомобилей</p>
+                  <p>{t('profile.noFavorites')}</p>
                 </div>
               ) : (
                 <div className="favorites-grid">
@@ -437,22 +438,22 @@ const Profile = () => {
                             alt={`${car.brand} ${car.model}`} 
                           />
                         ) : (
-                          <div className="no-image">Нет фото</div>
+                          <div className="no-image">{t('common.noPhoto')}</div>
                         )}
                         <button
                           className="favorite-remove-btn"
                           onClick={() => removeFromFavorites(car.id)}
-                          title="Удалить из избранного"
+                          title={t('profile.removeFromFavoritesTitle')}
                         >
                           ❌
                         </button>
                       </div>
                       <div className="favorite-car-info">
                         <h3>{car.brand} {car.model}</h3>
-                        <p className="favorite-car-year">{car.year} год</p>
+                        <p className="favorite-car-year">{car.year} {t('common.year')}</p>
                         <p className="favorite-car-price">{parseInt(car.price).toLocaleString('kk-KZ')} ₸</p>
                         {car.mileage && (
-                          <p className="favorite-car-mileage">Пробег: {car.mileage.toLocaleString('kk-KZ')} км</p>
+                          <p className="favorite-car-mileage">{t('cars.mileage')}: {car.mileage.toLocaleString('kk-KZ')} км</p>
                         )}
                       </div>
                     </div>
@@ -468,13 +469,13 @@ const Profile = () => {
         <div className="favorites-modal">
           <div className="favorites-modal-content">
             <div className="favorites-modal-header">
-              <h2>🛒 История покупок</h2>
+              <h2>🛒 {t('profile.purchaseHistory')}</h2>
               <button className="favorites-modal-close" onClick={() => setShowHistory(false)}>×</button>
             </div>
             <div className="favorites-list">
               {purchaseHistory.length === 0 ? (
                 <div className="favorites-empty">
-                  <p>У вас пока нет покупок</p>
+                  <p>{t('profile.noPurchases')}</p>
                 </div>
               ) : (
                 <div className="favorites-grid">
@@ -487,15 +488,15 @@ const Profile = () => {
                             alt={`${purchase.car.brand} ${purchase.car.model}`} 
                           />
                         ) : (
-                          <div className="no-image">Нет фото</div>
+                          <div className="no-image">{t('common.noPhoto')}</div>
                         )}
-                        <div className="purchase-badge">✓ Куплено</div>
+                        <div className="purchase-badge">✓ {t('profile.bought')}</div>
                       </div>
                       <div className="favorite-car-info">
                         {purchase.car ? (
                           <>
                             <h3>{purchase.car.brand} {purchase.car.model}</h3>
-                            <p className="favorite-car-year">{purchase.car.year} год</p>
+                            <p className="favorite-car-year">{purchase.car.year} {t('common.year')}</p>
                             <p className="favorite-car-price">{parseInt(purchase.price).toLocaleString('kk-KZ')} ₸</p>
                             {purchase.car.mileage && (
                               <p className="favorite-car-mileage">Пробег: {purchase.car.mileage.toLocaleString('kk-KZ')} км</p>
@@ -503,10 +504,10 @@ const Profile = () => {
                             {purchase.car.city && (
                               <p className="favorite-car-city">📍 {purchase.car.city}</p>
                             )}
-                            <p className="purchase-date">Дата покупки: {formatDate(purchase.purchaseDate)}</p>
+                            <p className="purchase-date">{t('profile.purchaseDate')}: {formatDate(purchase.purchaseDate)}</p>
                           </>
                         ) : (
-                          <p>Автомобиль удален</p>
+                          <p>{t('profile.carDeleted')}</p>
                         )}
                       </div>
                     </div>

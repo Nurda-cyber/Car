@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import AuthContext from '../context/AuthContext';
+import LanguageContext from '../context/LanguageContext';
 import { WS_URL } from '../config';
 import './Chat.css';
 
-// Chat может работать в двух режимах:
-// 1) Покупатель со страницы автомобиля: создаём/получаем чат по carId
-// 2) Любая сторона из списка чатов: открываем уже существующий чат по chatId
 const Chat = ({ carId, sellerId, chatId, initialChat, initialMessages, onClose }) => {
-  const { user } = React.useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const [chat, setChat] = useState(initialChat || null);
   const [messages, setMessages] = useState(initialMessages || []);
   const [newMessage, setNewMessage] = useState('');
@@ -303,7 +302,7 @@ const Chat = ({ carId, sellerId, chatId, initialChat, initialMessages, onClose }
           className="chat-input"
           value={newMessage}
           onChange={handleTyping}
-          placeholder="Введите сообщение..."
+          placeholder={t('chat.typeMessage')}
           maxLength={1000}
         />
         <button 
@@ -311,7 +310,7 @@ const Chat = ({ carId, sellerId, chatId, initialChat, initialMessages, onClose }
           className="chat-send-button"
           disabled={!newMessage.trim()}
         >
-          Отправить
+          {t('chat.send')}
         </button>
       </form>
     </div>

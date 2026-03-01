@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { API_BASE } from '../config';
+import LanguageContext from '../context/LanguageContext';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
+  const { t } = useContext(LanguageContext);
   const [cars, setCars] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ const AdminPanel = () => {
       setCars(response.data);
     } catch (error) {
       console.error('Ошибка загрузки автомобилей:', error);
-      alert('Ошибка загрузки автомобилей');
+      alert(t('admin.errorLoadCars'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ const AdminPanel = () => {
       setUsers(response.data);
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error);
-      alert('Ошибка загрузки пользователей');
+      alert(t('admin.errorLoadUsers'));
     }
   };
 
@@ -85,12 +87,12 @@ const AdminPanel = () => {
         await axios.put(`/api/admin/cars/${editingCar.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        alert('Автомобиль обновлен');
+        alert(t('admin.carUpdated'));
       } else {
         await axios.post('/api/admin/cars', formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        alert('Автомобиль добавлен');
+        alert(t('admin.carAdded'));
       }
 
       setShowAddForm(false);
@@ -191,19 +193,14 @@ const AdminPanel = () => {
   };
 
   const getStatusLabel = (status) => {
-    const labels = {
-      pending: 'На обработке',
-      active: 'Активен',
-      sold: 'Продан',
-      disabled: 'Отключен'
-    };
-    return labels[status] || status;
+    const key = status === 'pending' ? 'pending' : status === 'active' ? 'active' : status === 'sold' ? 'sold' : 'disabled';
+    return t(`admin.${key}`);
   };
 
   return (
     <div className="admin-panel-container">
       <div className="admin-header">
-        <h1>Панель администратора</h1>
+        <h1>{t('admin.title')}</h1>
         <button
           className="btn-add"
           onClick={() => {
@@ -214,7 +211,7 @@ const AdminPanel = () => {
             }
           }}
         >
-          {showAddForm ? 'Отмена' : '+ Добавить автомобиль'}
+          {showAddForm ? t('common.cancel') : `+ ${t('admin.addCar')}`}
         </button>
       </div>
 
