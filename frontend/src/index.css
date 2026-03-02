@@ -1,31 +1,33 @@
 :root {
-  /* Palette — премиум автомобильная тема */
-  /* Нежный голубой фон вместо белого */
-  --color-bg: #e0f2fe;        /* общий фон страницы */
-  --color-bg-subtle: #dbeafe; /* чуть более тёмный голубой для подложек */
+  /* Новая палитра — тёплый красный + изумрудный акцент */
+  --color-bg: #fff1f2;        /* мягкий розово‑кремовый фон */
+  --color-bg-subtle: #ffe4e6; /* чуть более тёмный для подложек */
 
-  /* Поверхности (хедер, фильтры, карточки) — тоже не белые */
-  --color-surface: #eef2ff;          /* светлый индиго/голубой */
-  --color-surface-elevated: #e0f2fe; /* приподнятые панели */
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
+  /* Поверхности (хедер, фильтры, карточки) */
+  --color-surface: #fff7ed;          /* тёплый светлый персиковый */
+  --color-surface-elevated: #fee2e2; /* приподнятые панели с красным оттенком */
+  --color-border: #fecaca;
+  --color-border-strong: #f97373;
 
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-text-subtle: #9ca3af;
 
-  --color-primary: #0ea5e9;
-  --color-primary-hover: #0284c7;
-  --color-primary-muted: rgba(14, 165, 233, 0.12);
-  --color-accent: #06b6d4;
-  --color-accent-muted: rgba(6, 182, 212, 0.12);
+  /* Основной цвет — насыщенный красный/розовый */
+  --color-primary: #e11d48;
+  --color-primary-hover: #be123c;
+  --color-primary-muted: rgba(225, 29, 72, 0.12);
 
-  --color-success: #10b981;
-  --color-success-muted: rgba(16, 185, 129, 0.12);
-  --color-danger: #ef4444;
-  --color-danger-muted: rgba(239, 68, 68, 0.12);
-  --color-warning: #f59e0b;
-  --color-warning-muted: rgba(245, 158, 11, 0.12);
+  /* Второй красивый акцент — изумрудный */
+  --color-accent: #059669;
+  --color-accent-muted: rgba(5, 150, 105, 0.12);
+
+  --color-success: #16a34a;
+  --color-success-muted: rgba(22, 163, 74, 0.12);
+  --color-danger: #dc2626;
+  --color-danger-muted: rgba(220, 38, 38, 0.12);
+  --color-warning: #f97316;
+  --color-warning-muted: rgba(249, 115, 22, 0.12);
 
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
@@ -36,45 +38,46 @@
   --radius-2xl: 24px;
 
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.15);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 40px rgba(225, 29, 72, 0.25);
 
   --transition: 0.2s ease;
   --transition-slow: 0.35s ease;
 }
 
 [data-theme="dark"] {
-  --color-bg: #0f172a;
-  --color-bg-subtle: #1e293b;
-  --color-surface: #1e293b;
-  --color-surface-elevated: #334155;
-  --color-border: #334155;
-  --color-border-strong: #475569;
+  --color-bg: #111827;
+  --color-bg-subtle: #1f2937;
+  --color-surface: #1f2937;
+  --color-surface-elevated: #374151;
+  --color-border: #4b5563;
+  --color-border-strong: #6b7280;
 
-  --color-text: #f1f5f9;
-  --color-text-muted: #cbd5e1;
-  --color-text-subtle: #94a3b8;
+  --color-text: #f9fafb;
+  --color-text-muted: #d1d5db;
+  --color-text-subtle: #9ca3af;
 
-  --color-primary: #0ea5e9;
-  --color-primary-hover: #38bdf8;
-  --color-primary-muted: rgba(14, 165, 233, 0.2);
-  --color-accent: #06b6d4;
-  --color-accent-muted: rgba(6, 182, 212, 0.2);
+  --color-primary: #fb7185; /* более светлый красный в тёмной теме */
+  --color-primary-hover: #f97373;
+  --color-primary-muted: rgba(248, 113, 113, 0.24);
 
-  --color-success: #10b981;
-  --color-success-muted: rgba(16, 185, 129, 0.2);
-  --color-danger: #ef4444;
-  --color-danger-muted: rgba(239, 68, 68, 0.2);
-  --color-warning: #f59e0b;
-  --color-warning-muted: rgba(245, 158, 11, 0.2);
+  --color-accent: #34d399; /* яркий изумруд в тёмной теме */
+  --color-accent-muted: rgba(52, 211, 153, 0.22);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.3);
+  --color-success: #22c55e;
+  --color-success-muted: rgba(34, 197, 94, 0.2);
+  --color-danger: #f97373;
+  --color-danger-muted: rgba(248, 113, 113, 0.24);
+  --color-warning: #fb923c;
+  --color-warning-muted: rgba(251, 146, 60, 0.22);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 40px rgba(248, 113, 113, 0.4);
 }
 
 * {
