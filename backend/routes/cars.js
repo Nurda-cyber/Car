@@ -8,23 +8,12 @@ const Favorite = require('../models/Favorite');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { calculateDistanceFromCity, getCityCoordinates } = require('../utils/calculateDistance');
+const { minioClient, bucketName, ensureBucketExists } = require('../utils/minioClient');
 
 const router = express.Router();
 
-// Настройка multer для загрузки файлов
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads/cars');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'car-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Настройка multer для загрузки файлов (в память, затем загружаем в MinIO)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
@@ -41,6 +30,30 @@ const upload = multer({
     }
   }
 });
+
+async function uploadPhotosToMinio(files) {
+  if (!files || files.length === 0) return [];
+
+  const uploaded = [];
+
+  // Гарантируем, что бакет существует
+  await ensureBucketExists();
+
+  for (const file of files) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const objectName = `cars/car-${uniqueSuffix}${ext}`;
+
+    await minioClient.putObject(bucketName, objectName, file.buffer, {
+      'Content-Type': file.mimetype
+    });
+
+    // Сохраняем путь, по которому фронтенд сможет получить фото через backend
+    uploaded.push(`/api/files/${encodeURIComponent(objectName)}`);
+  }
+
+  return uploaded;
+}
 
 // Получить все автомобили с фильтрацией (доступно всем авторизованным пользователям)
 router.get('/', auth, async (req, res) => {
@@ -472,8 +485,8 @@ router.post('/sell', auth, upload.array('photos', 10), async (req, res) => {
       return res.status(400).json({ message: 'Пробег должен быть неотрицательным числом' });
     }
 
-    // Обработка загруженных фото
-    const photos = req.files ? req.files.map(file => `/uploads/cars/${file.filename}`) : [];
+    // Обработка загруженных фото (загружаем в MinIO)
+    const photos = await uploadPhotosToMinio(req.files);
 
     // Получаем координаты города, если указан
     let latitude = null;

@@ -6,23 +6,12 @@ const Car = require('../models/Car');
 const User = require('../models/User');
 const admin = require('../middleware/admin');
 const { getCityCoordinates } = require('../utils/calculateDistance');
+const { minioClient, bucketName, ensureBucketExists } = require('../utils/minioClient');
 
 const router = express.Router();
 
-// Настройка multer для загрузки файлов
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads/cars');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'car-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Настройка multer для загрузки файлов (в память, затем в MinIO)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
@@ -39,6 +28,29 @@ const upload = multer({
     }
   }
 });
+
+async function uploadPhotosToMinio(files) {
+  if (!files || files.length === 0) return [];
+
+  const uploaded = [];
+
+  // Гарантируем, что бакет существует
+  await ensureBucketExists();
+
+  for (const file of files) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const objectName = `cars/car-${uniqueSuffix}${ext}`;
+
+    await minioClient.putObject(bucketName, objectName, file.buffer, {
+      'Content-Type': file.mimetype
+    });
+
+    uploaded.push(`/api/files/${encodeURIComponent(objectName)}`);
+  }
+
+  return uploaded;
+}
 
 // Добавить новый автомобиль
 router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
@@ -63,8 +75,8 @@ router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
       return res.status(400).json({ message: 'Заполните все обязательные поля' });
     }
 
-    // Обработка загруженных фото
-    const photos = req.files ? req.files.map(file => `/uploads/cars/${file.filename}`) : [];
+    // Обработка загруженных фото (MinIO)
+    const photos = await uploadPhotosToMinio(req.files);
 
     // Получаем координаты города, если указан
     let latitude = null;
@@ -166,9 +178,9 @@ router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
       }
     }
 
-    // Добавление новых фото
+    // Добавление новых фото (MinIO)
     if (req.files && req.files.length > 0) {
-      const newPhotos = req.files.map(file => `/uploads/cars/${file.filename}`);
+      const newPhotos = await uploadPhotosToMinio(req.files);
       car.photos = [...car.photos, ...newPhotos];
     }
 
@@ -212,16 +224,17 @@ router.delete('/cars/:id', admin, async (req, res) => {
       return res.status(404).json({ message: 'Автомобиль не найден' });
     }
 
-    // Удаляем все связанные файлы фотографий с диска
+    // Удаляем все связанные файлы фотографий из MinIO (если они там)
     if (Array.isArray(car.photos) && car.photos.length > 0) {
       for (const photo of car.photos) {
         try {
-          const photoPath = path.join(__dirname, '..', photo);
-          if (fs.existsSync(photoPath)) {
-            fs.unlinkSync(photoPath);
+          const prefix = '/api/files/';
+          if (photo.startsWith(prefix)) {
+            const objectName = decodeURIComponent(photo.substring(prefix.length));
+            await minioClient.removeObject(bucketName, objectName);
           }
         } catch (err) {
-          console.error(`Ошибка удаления файла фото "${photo}":`, err);
+          console.error(`Ошибка удаления файла фото "${photo}" из MinIO:`, err);
         }
       }
     }
@@ -274,10 +287,12 @@ router.delete('/cars/:id/photos/:photoIndex', admin, async (req, res) => {
       return res.status(400).json({ message: 'Неверный индекс фото' });
     }
 
-    // Удаляем файл с диска
-    const photoPath = path.join(__dirname, '..', car.photos[photoIndex]);
-    if (fs.existsSync(photoPath)) {
-      fs.unlinkSync(photoPath);
+    // Удаляем файл из MinIO, если он там
+    const photoPath = car.photos[photoIndex];
+    const prefix = '/api/files/';
+    if (typeof photoPath === 'string' && photoPath.startsWith(prefix)) {
+      const objectName = decodeURIComponent(photoPath.substring(prefix.length));
+      await minioClient.removeObject(bucketName, objectName);
     }
 
     // Удаляем из массива

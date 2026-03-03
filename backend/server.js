@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const { minioClient, bucketName } = require('./utils/minioClient');
 const sequelize = require('./config/database');
 const User = require('./models/User');
 const Car = require('./models/Car');
@@ -37,8 +38,42 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// Статические файлы для загруженных изображений
+// Статические файлы для старых загруженных изображений (до миграции на MinIO)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Прокси-доступ к приватным объектам MinIO
+app.get('/api/files/:objectKey', async (req, res) => {
+  try {
+    const objectName = decodeURIComponent(req.params.objectKey);
+
+    // Опционально можно получить метаданные, чтобы выставить Content-Type
+    let contentType = 'application/octet-stream';
+    try {
+      const stat = await minioClient.statObject(bucketName, objectName);
+      if (stat.metaData && stat.metaData['content-type']) {
+        contentType = stat.metaData['content-type'];
+      }
+    } catch (e) {
+      // если не получилось получить мета, просто fallback
+    }
+
+    res.setHeader('Content-Type', contentType);
+
+    const stream = await minioClient.getObject(bucketName, objectName);
+    stream.on('error', (err) => {
+      console.error('Ошибка чтения объекта из MinIO:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Ошибка чтения файла' });
+      } else {
+        res.end();
+      }
+    });
+    stream.pipe(res);
+  } catch (error) {
+    console.error('Ошибка выдачи файла из MinIO:', error);
+    res.status(404).json({ message: 'Файл не найден' });
+  }
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
