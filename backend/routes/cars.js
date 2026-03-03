@@ -445,7 +445,7 @@ router.delete('/:id/favorite', auth, async (req, res) => {
 });
 
 // Продать автомобиль (создать объявление)
-router.post('/sell', auth, upload.array('photos', 10), async (req, res) => {
+router.post('/sell', auth, upload.array('photos', 5), async (req, res) => {
   try {
     const {
       brand,

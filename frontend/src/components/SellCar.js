@@ -36,7 +36,7 @@ const SellCar = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 10) {
+    if (files.length > 5) {
       setError(t('sell.maxPhotos'));
       return;
     }

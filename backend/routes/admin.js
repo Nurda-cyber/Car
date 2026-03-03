@@ -53,7 +53,7 @@ async function uploadPhotosToMinio(files) {
 }
 
 // Добавить новый автомобиль
-router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
+router.post('/cars', admin, upload.array('photos', 5), async (req, res) => {
   try {
     const {
       brand,
@@ -117,7 +117,7 @@ router.post('/cars', admin, upload.array('photos', 10), async (req, res) => {
 });
 
 // Обновить автомобиль (обработка)
-router.put('/cars/:id', admin, upload.array('photos', 10), async (req, res) => {
+router.put('/cars/:id', admin, upload.array('photos', 5), async (req, res) => {
   try {
     const carId = req.params.id;
     const car = await Car.findByPk(carId);

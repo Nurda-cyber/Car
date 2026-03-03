@@ -20,6 +20,7 @@ const CarDetail = () => {
   const [seller, setSeller] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   useEffect(() => {
     fetchCar();
@@ -32,6 +33,7 @@ const CarDetail = () => {
       const response = await axios.get(`/api/cars/${id}`);
       console.log(`[CarDetail] Автомобиль загружен:`, response.data);
       setCar(response.data);
+      setActivePhotoIndex(0);
       
       // Используем информацию о продавце из ответа API
       if (response.data.seller) {
@@ -117,14 +119,64 @@ const CarDetail = () => {
           <div className="car-detail-gallery">
             {car.photos && car.photos.length > 0 ? (
               <div className="car-photos">
-                {car.photos.map((photo, index) => (
+                <div className="car-main-photo-wrapper">
+                  {car.photos.length > 1 && (
+                    <button
+                      type="button"
+                      className="car-photo-nav car-photo-nav-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePhotoIndex((prev) =>
+                          prev === 0 ? car.photos.length - 1 : prev - 1
+                        );
+                      }}
+                    >
+                      ‹
+                    </button>
+                  )}
                   <img
-                    key={index}
-                    src={`${API_BASE}${photo}`}
-                    alt={`${car.brand} ${car.model} - фото ${index + 1}`}
+                    src={`${API_BASE}${car.photos[activePhotoIndex]}`}
+                    alt={`${car.brand} ${car.model} - фото ${activePhotoIndex + 1}`}
                     className="car-photo"
                   />
-                ))}
+                  {car.photos.length > 1 && (
+                    <button
+                      type="button"
+                      className="car-photo-nav car-photo-nav-right"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePhotoIndex((prev) =>
+                          prev === car.photos.length - 1 ? 0 : prev + 1
+                        );
+                      }}
+                    >
+                      ›
+                    </button>
+                  )}
+                </div>
+                {car.photos.length > 1 && (
+                  <div className="car-photo-thumbs">
+                    {car.photos.slice(0, 5).map((photo, index) => (
+                      <button
+                        type="button"
+                        key={index}
+                        className={`car-photo-thumb-btn ${
+                          index === activePhotoIndex ? 'active' : ''
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActivePhotoIndex(index);
+                        }}
+                      >
+                        <img
+                          src={`${API_BASE}${photo}`}
+                          alt={`${car.brand} ${car.model} - превью ${index + 1}`}
+                          className="car-photo-thumb"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="no-photos">🚗 {t('cars.noPhotos')}</div>

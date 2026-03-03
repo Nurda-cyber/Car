@@ -15,6 +15,7 @@ const CarsList = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [photoIndexes, setPhotoIndexes] = useState({});
   const [filters, setFilters] = useState({
     search: '',
     brand: '',
@@ -115,6 +116,28 @@ const CarsList = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const getCurrentPhotoIndex = (car) => {
+    const photos = car.photos || [];
+    if (!photos.length) return 0;
+    const idx = photoIndexes[car.id] ?? 0;
+    if (idx < 0) return 0;
+    if (idx >= photos.length) return photos.length - 1;
+    return idx;
+  };
+
+  const changePhoto = (car, direction) => {
+    const photos = car.photos || [];
+    if (!photos.length) return;
+    setPhotoIndexes(prev => {
+      const current = prev[car.id] ?? 0;
+      const next =
+        direction === 'next'
+          ? (current + 1) % photos.length
+          : (current - 1 + photos.length) % photos.length;
+      return { ...prev, [car.id]: next };
+    });
   };
 
   return (
@@ -263,7 +286,55 @@ const CarsList = () => {
             <div key={car.id} className="car-card" onClick={() => navigate(`/car/${car.id}`)}>
               <div className="car-image">
                 {car.photos && car.photos.length > 0 ? (
-                  <img src={`${API_BASE}${car.photos[0]}`} alt={`${car.brand} ${car.model}`} />
+                  <>
+                    <div className="car-image-main">
+                      {car.photos.length > 1 && (
+                        <button
+                          type="button"
+                          className="car-card-photo-nav car-card-photo-nav-left"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changePhoto(car, 'prev');
+                          }}
+                        >
+                          ‹
+                        </button>
+                      )}
+                      <img
+                        src={`${API_BASE}${car.photos[getCurrentPhotoIndex(car)]}`}
+                        alt={`${car.brand} ${car.model}`}
+                      />
+                      {car.photos.length > 1 && (
+                        <button
+                          type="button"
+                          className="car-card-photo-nav car-card-photo-nav-right"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changePhoto(car, 'next');
+                          }}
+                        >
+                          ›
+                        </button>
+                      )}
+                    </div>
+                    {car.photos.length > 1 && (
+                      <div className="car-card-photo-dots">
+                        {car.photos.slice(0, 5).map((_, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            className={`car-card-photo-dot ${
+                              index === getCurrentPhotoIndex(car) ? 'active' : ''
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPhotoIndexes(prev => ({ ...prev, [car.id]: index }));
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="no-image">{t('common.noPhoto')}</div>
                 )}

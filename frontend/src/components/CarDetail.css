@@ -99,9 +99,9 @@
 }
 
 .car-photos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .car-photo {
@@ -110,6 +110,69 @@
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.car-main-photo-wrapper {
+  position: relative;
+}
+
+.car-photo-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.car-photo-nav:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.car-photo-nav-left {
+  left: 10px;
+}
+
+.car-photo-nav-right {
+  right: 10px;
+}
+
+.car-photo-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  overflow-x: auto;
+}
+
+.car-photo-thumb-btn {
+  border: none;
+  padding: 0;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.car-photo-thumb-btn.active {
+  box-shadow: 0 0 0 2px #e11d48;
+}
+
+.car-photo-thumb {
+  width: 70px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .no-photos {

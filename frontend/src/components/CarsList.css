@@ -82,6 +82,12 @@
   background: var(--color-bg-subtle);
 }
 
+.car-image-main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .car-image img {
   width: 100%;
   height: 100%;
@@ -101,6 +107,65 @@
   justify-content: center;
   color: var(--color-text-subtle);
   font-size: 0.875rem;
+}
+
+.car-card-photo-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.1s ease;
+  z-index: 5;
+}
+
+.car-card-photo-nav:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.car-card-photo-nav-left {
+  left: 8px;
+}
+
+.car-card-photo-nav-right {
+  right: 8px;
+}
+
+.car-card-photo-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  z-index: 4;
+}
+
+.car-card-photo-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+.car-card-photo-dot.active {
+  background: var(--color-primary);
 }
 
 .favorite-btn {
