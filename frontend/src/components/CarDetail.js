@@ -93,7 +93,7 @@ const CarDetail = () => {
             <div>
               <h1>{car.brand} {car.model}</h1>
               {car.views !== undefined && (
-                <p className="car-views">👁️ {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
+                <p className="car-views"><i className="bi bi-eye" aria-hidden /> {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
               )}
             </div>
             <div className="car-detail-actions">
@@ -103,14 +103,14 @@ const CarDetail = () => {
                   className="chat-button"
                   onClick={() => setShowChat(!showChat)}
                 >
-                  💬 {showChat ? t('cars.closeChat') : t('cars.writeToSeller')}
+                  <i className="bi bi-chat-heart-fill" aria-hidden /> {showChat ? t('cars.closeChat') : t('cars.writeToSeller')}
                 </button>
               ) : (
                 <button
                   className="chat-button"
                   onClick={() => navigate('/dashboard', { state: { activeTab: 'chats' } })}
                 >
-                  💬 {t('cars.openChatsForCar')}
+                  <i className="bi bi-chat-heart-fill" aria-hidden /> {t('cars.openChatsForCar')}
                 </button>
               )}
             </div>

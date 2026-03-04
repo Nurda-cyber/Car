@@ -55,7 +55,7 @@ const Dashboard = () => {
             onClick={toggleTheme}
             title={theme === 'light' ? t('nav.themeDark') : t('nav.themeLight')}
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            <i className={`bi ${theme === 'light' ? 'bi-moon-fill' : 'bi-sun-fill'}`} aria-hidden />
           </button>
           <LanguageSwitcher />
           <div className="header-actions-right">
@@ -63,7 +63,7 @@ const Dashboard = () => {
               className={`btn-profile ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
             >
-              👤 {t('nav.profile')}
+              <i className="bi bi-person-fill" aria-hidden /> {t('nav.profile')}
             </button>
             <button onClick={handleLogout} className="btn-logout">
               {t('nav.logout')}
@@ -77,38 +77,38 @@ const Dashboard = () => {
           className={`tab ${activeTab === 'cars' ? 'active' : ''}`}
           onClick={() => handleTabChange('cars')}
         >
-          🚗 {t('nav.catalog')}
+          <i className="bi bi-car-front-fill" aria-hidden /> {t('nav.catalog')}
         </button>
         <button
           className={`tab ${activeTab === 'sell' ? 'active' : ''}`}
           onClick={() => handleTabChange('sell')}
         >
-          🚙 {t('nav.sell')}
+          <i className="bi bi-plus-circle-fill" aria-hidden /> {t('nav.sell')}
         </button>
         <button
           className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
           onClick={() => handleTabChange('cart')}
         >
-          🛒 {t('nav.cart')}
+          <i className="bi bi-cart-check-fill" aria-hidden /> {t('nav.cart')}
         </button>
         <button
           className={`tab ${activeTab === 'balance' ? 'active' : ''}`}
           onClick={() => handleTabChange('balance')}
         >
-          💰 {t('nav.balance')}
+          <i className="bi bi-coin" aria-hidden /> {t('nav.balance')}
         </button>
         <button
           className={`tab ${activeTab === 'chats' ? 'active' : ''}`}
           onClick={() => handleTabChange('chats')}
         >
-          💬 {t('nav.chats')}
+          <i className="bi bi-chat-heart-fill" aria-hidden /> {t('nav.chats')}
         </button>
         {user?.role === 'admin' && (
           <button
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
             onClick={() => handleTabChange('admin')}
           >
-            ⚙️ {t('nav.adminPanel')}
+            <i className="bi bi-gear-fill" aria-hidden /> {t('nav.adminPanel')}
           </button>
         )}
       </div>

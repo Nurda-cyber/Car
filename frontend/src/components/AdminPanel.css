@@ -23,7 +23,7 @@
 
 .btn-add {
   padding: 12px 24px;
-  background: var(--color-success);
+  background: var(--color-violet);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -36,7 +36,7 @@
 .btn-add:hover {
   filter: brightness(1.08);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
 }
 
 .add-car-form {
@@ -207,12 +207,12 @@
 }
 
 .status-pending {
-  background: var(--color-warning-muted);
+  background: var(--color-danger-muted);
   color: var(--color-warning);
 }
 
 .status-active {
-  background: var(--color-success-muted);
+  background: var(--color-violet-muted);
   color: var(--color-success);
 }
 

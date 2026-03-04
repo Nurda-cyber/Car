@@ -105,7 +105,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
                 if (interactive) setRating(star);
               }}
             >
-              ⭐
+              <i className={`bi ${isFilled ? 'bi-star-fill' : 'bi-star'}`} aria-hidden />
             </span>
           );
         })}
@@ -116,7 +116,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
   if (!sellerId) {
     return (
       <div className="seller-rating-container">
-        <h3 className="rating-title">⭐ Рейтинг продавца</h3>
+        <h3 className="rating-title"><i className="bi bi-star-fill" aria-hidden /> Рейтинг продавца</h3>
         <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>
           Информация о продавце недоступна
         </p>
@@ -126,7 +126,7 @@ const SellerRating = ({ sellerId, sellerName }) => {
 
   return (
     <div className="seller-rating-container" onClick={(e) => e.stopPropagation()}>
-      <h3 className="rating-title">⭐ Рейтинг продавца: {sellerName || 'Продавец'}</h3>
+      <h3 className="rating-title"><i className="bi bi-star-fill" aria-hidden /> Рейтинг продавца: {sellerName || 'Продавец'}</h3>
 
       {totalRatings > 0 ? (
         <div className="rating-summary">

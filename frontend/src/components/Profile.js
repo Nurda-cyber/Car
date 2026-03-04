@@ -212,7 +212,7 @@ const Profile = () => {
                     className="btn-edit-profile"
                     onClick={() => setIsEditing(true)}
                   >
-                    ✏️ {t('profile.editProfile')}
+                    <i className="bi bi-pencil-fill" aria-hidden /> {t('profile.editProfile')}
                   </button>
                 )}
               </div>
@@ -383,7 +383,7 @@ const Profile = () => {
               <h2>{t('profile.stats')}</h2>
               <div className="stats-grid">
                 <div className="stat-card stat-card-clickable" onClick={handleFavoritesClick}>
-                  <div className="stat-icon">❤️</div>
+                  <div className="stat-icon"><i className="bi bi-hand-thumbs-up-fill" aria-hidden /></div>
                   <div className="stat-info">
                     <div className="stat-value">{loading ? '...' : favoritesCount}</div>
                     <div className="stat-label">{t('profile.favoritesCount')}</div>
@@ -391,7 +391,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="stat-card stat-card-clickable" onClick={handleHistoryClick}>
-                  <div className="stat-icon">🛒</div>
+                  <div className="stat-icon"><i className="bi bi-cart-check-fill" aria-hidden /></div>
                   <div className="stat-info">
                     <div className="stat-value">{purchasesCount}</div>
                     <div className="stat-label">{t('profile.purchasedCount')}</div>
@@ -399,7 +399,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-icon">📅</div>
+                  <div className="stat-icon"><i className="bi bi-calendar3" aria-hidden /></div>
                   <div className="stat-info">
                     <div className="stat-value">
                       {user?.createdAt 
@@ -419,7 +419,7 @@ const Profile = () => {
         <div className="favorites-modal">
           <div className="favorites-modal-content">
             <div className="favorites-modal-header">
-              <h2>❤️ {t('profile.favoritesTitle')}</h2>
+              <h2><i className="bi bi-hand-thumbs-up-fill" aria-hidden /> {t('profile.favoritesTitle')}</h2>
               <button className="favorites-modal-close" onClick={() => setShowFavorites(false)}>×</button>
             </div>
             <div className="favorites-list">
@@ -445,7 +445,7 @@ const Profile = () => {
                           onClick={() => removeFromFavorites(car.id)}
                           title={t('profile.removeFromFavoritesTitle')}
                         >
-                          ❌
+                          <i className="bi bi-x-lg" aria-hidden />
                         </button>
                       </div>
                       <div className="favorite-car-info">
@@ -469,7 +469,7 @@ const Profile = () => {
         <div className="favorites-modal">
           <div className="favorites-modal-content">
             <div className="favorites-modal-header">
-              <h2>🛒 {t('profile.purchaseHistory')}</h2>
+              <h2><i className="bi bi-cart-check-fill" aria-hidden /> {t('profile.purchaseHistory')}</h2>
               <button className="favorites-modal-close" onClick={() => setShowHistory(false)}>×</button>
             </div>
             <div className="favorites-list">
@@ -490,7 +490,7 @@ const Profile = () => {
                         ) : (
                           <div className="no-image">{t('common.noPhoto')}</div>
                         )}
-                        <div className="purchase-badge">✓ {t('profile.bought')}</div>
+                        <div className="purchase-badge"><i className="bi bi-check-lg" aria-hidden /> {t('profile.bought')}</div>
                       </div>
                       <div className="favorite-car-info">
                         {purchase.car ? (

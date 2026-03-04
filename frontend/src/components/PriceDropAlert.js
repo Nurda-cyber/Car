@@ -90,7 +90,7 @@ const PriceDropAlert = ({ car }) => {
   return (
     <div className="price-drop-alert-container">
       <div className="alert-header">
-        <h4>💰 Уведомление о падении цены</h4>
+        <h4><i className="bi bi-cash-coin" aria-hidden /> Уведомление о падении цены</h4>
         {existingAlert && (
           <span className="alert-active-badge">Активен</span>
         )}

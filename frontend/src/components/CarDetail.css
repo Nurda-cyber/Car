@@ -17,7 +17,7 @@
 .car-detail-error button {
   margin-top: 16px;
   padding: 10px 20px;
-  background: #667eea;
+  background: var(--color-violet);
   color: white;
   border: none;
   border-radius: 8px;
@@ -25,7 +25,8 @@
 }
 
 .back-button {
-  background: #f0f0f0;
+  background: var(--color-btn-gray);
+  color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
@@ -36,7 +37,7 @@
 }
 
 .back-button:hover {
-  background: #e0e0e0;
+  background: var(--color-btn-gray-hover);
 }
 
 .car-detail-content {
@@ -78,7 +79,7 @@
 }
 
 .chat-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-violet);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -90,8 +91,9 @@
 }
 
 .chat-button:hover {
+  background: var(--color-violet-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
 .car-detail-gallery {
@@ -234,7 +236,7 @@
 
 .info-value.price {
   font-size: 24px;
-  color: #667eea;
+  color: var(--color-violet);
   font-weight: 700;
 }
 

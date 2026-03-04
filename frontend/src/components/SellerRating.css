@@ -11,10 +11,17 @@
   font-size: 24px;
   color: #333;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-title i {
+  color: var(--color-violet);
 }
 
 .rating-summary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-violet) 100%);
   color: white;
   padding: 20px;
   border-radius: 12px;
@@ -102,11 +109,11 @@
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-violet);
 }
 
 .submit-rating {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-violet) 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -120,7 +127,7 @@
 
 .submit-rating:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
 .submit-rating:disabled {
@@ -136,13 +143,13 @@
 }
 
 .rating-message.success {
-  background: #d4edda;
+  background: var(--color-violet-muted);
   color: #155724;
   border: 1px solid #c3e6cb;
 }
 
 .rating-message.error {
-  background: #f8d7da;
+  background: var(--color-danger-muted);
   color: #721c24;
   border: 1px solid #f5c6cb;
 }

@@ -40,7 +40,7 @@
 .balance-alert-success {
   background: var(--color-success);
   color: white;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
 }
 
 .balance-loading {
@@ -62,7 +62,7 @@
   border-radius: var(--radius-xl);
   padding: 40px 36px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 20px 40px rgba(225, 29, 72, 0.25);
   position: relative;
   overflow: hidden;
 }

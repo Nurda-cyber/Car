@@ -50,28 +50,28 @@ const ShareButton = ({ car }) => {
         onClick={() => setShowMenu(!showMenu)}
         title="Поделиться"
       >
-        📤 Поделиться
+        <i className="bi bi-send-check-fill" aria-hidden /> Поделиться
       </button>
       
       {showMenu && (
         <div className="share-menu">
           <button className="share-menu-item" onClick={handleWhatsApp}>
-            <span className="share-icon">💬</span>
+            <span className="share-icon"><i className="bi bi-chat-heart-fill" aria-hidden /></span>
             WhatsApp
           </button>
           <button className="share-menu-item" onClick={handleTelegram}>
-            <span className="share-icon">✈️</span>
+            <span className="share-icon"><i className="bi bi-send-check-fill" aria-hidden /></span>
             Telegram
           </button>
           <button className="share-menu-item" onClick={handleCopyLink}>
-            <span className="share-icon">🔗</span>
+            <span className="share-icon"><i className="bi bi-link-45deg" aria-hidden /></span>
             {copied ? 'Скопировано!' : 'Скопировать ссылку'}
           </button>
         </div>
       )}
       
       {copied && !showMenu && (
-        <div className="copy-notification">✓ Ссылка скопирована!</div>
+        <div className="copy-notification"><i className="bi bi-check-lg" aria-hidden /> Ссылка скопирована!</div>
       )}
     </div>
   );

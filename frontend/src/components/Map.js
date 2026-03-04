@@ -39,7 +39,7 @@ const Map = () => {
   if (cars.length === 0) {
     return (
       <div className="map-empty">
-        <div className="empty-icon">🗺️</div>
+        <div className="empty-icon"><i className="bi bi-geo-alt-fill" aria-hidden /></div>
         <h2>Нет автомобилей с указанным местоположением</h2>
         <p>Добавьте координаты для автомобилей, чтобы увидеть их на карте</p>
       </div>

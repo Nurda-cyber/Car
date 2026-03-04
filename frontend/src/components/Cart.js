@@ -105,7 +105,7 @@ const Cart = () => {
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <h1>🛒 {t('cart.title')}</h1>
+        <h1><i className="bi bi-cart-check-fill" aria-hidden /> {t('cart.title')}</h1>
       </div>
 
       {error && <div className="cart-alert cart-alert-error">{error}</div>}
@@ -113,7 +113,7 @@ const Cart = () => {
 
       {cartItems.length === 0 ? (
         <div className="cart-empty">
-          <div className="empty-icon">🛒</div>
+          <div className="empty-icon"><i className="bi bi-cart-check-fill" aria-hidden /></div>
           <h2>{t('cart.empty')}</h2>
           <p>{t('cart.emptyHint')}</p>
         </div>
@@ -152,7 +152,7 @@ const Cart = () => {
                     onClick={() => removeFromCart(item.carId)}
                     title={t('cart.removeFromCart')}
                   >
-                    🗑️
+                    <i className="bi bi-trash-fill" aria-hidden />
                   </button>
                 </div>
               </div>
@@ -166,7 +166,7 @@ const Cart = () => {
             </div>
             {!canAfford && (
               <div className="insufficient-funds">
-                ⚠️ {t('cart.insufficientFunds')}. {t('cart.insufficientHint')} {(totalPrice - userBalance).toLocaleString('kk-KZ')} ₸
+                <i className="bi bi-exclamation-triangle-fill" aria-hidden /> {t('cart.insufficientFunds')}. {t('cart.insufficientHint')} {(totalPrice - userBalance).toLocaleString('kk-KZ')} ₸
               </div>
             )}
             <button 

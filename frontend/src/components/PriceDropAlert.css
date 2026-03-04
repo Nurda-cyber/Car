@@ -1,6 +1,6 @@
 .price-drop-alert-container {
-  background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
-  border: 2px solid #ffa500;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 2px solid var(--color-violet);
   border-radius: 12px;
   padding: 20px;
   margin: 20px 0;
@@ -18,10 +18,17 @@
   font-size: 18px;
   color: #333;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-header h4 i {
+  color: var(--color-violet);
 }
 
 .alert-active-badge {
-  background: #4caf50;
+  background: var(--color-violet);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -62,22 +69,22 @@
 }
 
 .btn-edit-alert {
-  background: #667eea;
+  background: var(--color-violet);
   color: white;
 }
 
 .btn-edit-alert:hover {
-  background: #5568d3;
+  background: var(--color-violet-hover);
   transform: translateY(-1px);
 }
 
 .btn-delete-alert {
-  background: #ff4444;
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-delete-alert:hover {
-  background: #cc0000;
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -115,7 +122,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #ffa500;
+  border-color: var(--color-violet);
 }
 
 .form-hint {
@@ -133,15 +140,15 @@
 }
 
 .alert-message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--color-violet-muted);
+  color: var(--color-violet);
+  border: 1px solid var(--color-violet);
 }
 
 .alert-message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: var(--color-danger-muted);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
 }
 
 .form-actions {
@@ -151,7 +158,7 @@
 
 .btn-submit-alert {
   flex: 1;
-  background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -163,8 +170,9 @@
 }
 
 .btn-submit-alert:hover:not(:disabled) {
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.4);
 }
 
 .btn-submit-alert:disabled {
@@ -174,8 +182,8 @@
 
 .btn-cancel-alert {
   padding: 12px 24px;
-  background: #e0e0e0;
-  color: #333;
+  background: var(--color-btn-gray);
+  color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -185,5 +193,5 @@
 }
 
 .btn-cancel-alert:hover {
-  background: #d0d0d0;
+  background: var(--color-btn-gray-hover);
 }

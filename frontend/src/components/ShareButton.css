@@ -4,7 +4,7 @@
 }
 
 .share-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-violet);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -13,12 +13,13 @@
   font-size: 14px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
 }
 
 .share-button:hover {
+  background: var(--color-violet-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
 }
 
 .share-menu {
@@ -63,7 +64,7 @@
 }
 
 .share-menu-item:hover {
-  background: #f5f5f5;
+  background: var(--color-bg-subtle);
   transform: translateX(4px);
 }
 
@@ -76,7 +77,7 @@
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: #4caf50;
+  background: var(--color-violet);
   color: white;
   padding: 8px 16px;
   border-radius: 8px;

@@ -112,7 +112,7 @@ const ChatList = () => {
     <div className="chat-list-container">
       <div className="chat-list-sidebar">
         <div className="chat-list-header">
-          <h2>💬 {t('chat.myChats')}</h2>
+          <h2><i className="bi bi-chat-heart-fill" aria-hidden /> {t('chat.myChats')}</h2>
         </div>
 
         {chats.length === 0 ? (

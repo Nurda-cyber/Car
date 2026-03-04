@@ -23,8 +23,9 @@ const LanguageSwitcher = () => {
         title={t('language.ru')}
         aria-expanded={open}
       >
+        <i className="bi bi-globe2" aria-hidden />
         <span className="language-switcher-label">{t(current.labelKey)}</span>
-        <span className="language-switcher-arrow">{open ? '▲' : '▼'}</span>
+        <span className="language-switcher-arrow"><i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden /></span>
       </button>
       {open && (
         <>

@@ -346,7 +346,7 @@ const CarsList = () => {
                   }}
                   title={favorites.includes(car.id) ? t('cars.removeFromFavorites') : t('cars.addToFavorites')}
                 >
-                  ❤️
+                  <i className={`bi ${favorites.includes(car.id) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`} aria-hidden />
                 </button>
               </div>
               <div className="car-info">
@@ -370,7 +370,7 @@ const CarsList = () => {
                           className={`star ${isFilled ? 'filled' : ''}`}
                           title={`${avgRating > 0 ? avgRating.toFixed(1) : t('cars.noRatings')}`}
                         >
-                          ⭐
+                          <i className={`bi ${isFilled ? 'bi-star-fill' : 'bi-star'}`} aria-hidden />
                         </span>
                       );
                     })}
@@ -394,13 +394,13 @@ const CarsList = () => {
                 </div>
                 
                 {car.views !== undefined && car.views !== null && (
-                  <p className="car-views">👁️ {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
+                  <p className="car-views"><i className="bi bi-eye" aria-hidden /> {t('cars.views')}: {car.views.toLocaleString('kk-KZ')}</p>
                 )}
                 {car.city && (
-                  <p className="car-city">📍 {t('cars.city')}: {car.city}</p>
+                  <p className="car-city"><i className="bi bi-geo-alt-fill" aria-hidden /> {t('cars.city')}: {car.city}</p>
                 )}
                 {car.distance !== null && car.distance !== undefined && (
-                  <p className="car-distance">📍 {t('cars.distance')}: {car.distance} км</p>
+                  <p className="car-distance"><i className="bi bi-geo-alt-fill" aria-hidden /> {t('cars.distance')}: {car.distance} км</p>
                 )}
                 {car.mileage && <p className="car-mileage">{t('cars.mileage')}: {car.mileage.toLocaleString()} км</p>}
                 {car.transmission && (
@@ -425,7 +425,7 @@ const CarsList = () => {
                   disabled={cartItems.includes(car.id) || car.status === 'sold'}
                   title={cartItems.includes(car.id) ? t('cars.inCartTitle') : car.status === 'sold' ? t('cars.soldTitle') : t('cars.addToCart')}
                 >
-                  {cartItems.includes(car.id) ? t('cars.inCart') : `🛒 ${t('cars.addToCart')}`}
+                  {cartItems.includes(car.id) ? t('cars.inCart') : <><i className="bi bi-cart-check-fill" aria-hidden /> {t('cars.addToCart')}</>}
                 </button>
               </div>
             </div>

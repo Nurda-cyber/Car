@@ -100,7 +100,7 @@ const CarValuation = ({ carId }) => {
                 if (interactive) setRating(star);
               }}
             >
-              ⭐
+              <i className={`bi ${isFilled ? 'bi-star-fill' : 'bi-star'}`} aria-hidden />
             </span>
           );
         })}
@@ -110,7 +110,7 @@ const CarValuation = ({ carId }) => {
 
   return (
     <div className="car-valuation-container" onClick={(e) => e.stopPropagation()}>
-      <h3 className="valuation-title">⭐ Оценка автомобиля</h3>
+      <h3 className="valuation-title"><i className="bi bi-star-fill" aria-hidden /> Оценка автомобиля</h3>
 
       {totalValuations > 0 && (
         <div className="valuation-summary">

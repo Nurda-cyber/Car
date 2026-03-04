@@ -122,13 +122,13 @@ const NotificationBell = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'message':
-        return '💬';
+        return <i className="bi bi-chat-heart-fill" aria-hidden />;
       case 'price_drop':
-        return '💰';
+        return <i className="bi bi-coin" aria-hidden />;
       case 'test_drive_approved':
-        return '🚗';
+        return <i className="bi bi-car-front-fill" aria-hidden />;
       default:
-        return '🔔';
+        return <i className="bi bi-bell-fill" aria-hidden />;
     }
   };
 
@@ -154,7 +154,7 @@ const NotificationBell = () => {
         onClick={() => setShowDropdown(!showDropdown)}
         title={t('notifications.title')}
       >
-        🔔
+        <i className="bi bi-bell-fill" aria-hidden />
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
         )}

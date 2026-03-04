@@ -113,21 +113,22 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   color: #fff;
   border: none;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1;
   padding: 0;
   transition: background 0.2s ease, transform 0.1s ease;
-  z-index: 5;
+  z-index: 8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .car-card-photo-nav:hover {
@@ -145,23 +146,24 @@
 
 .car-card-photo-dots {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 4px;
-  z-index: 4;
+  gap: 6px;
+  z-index: 8;
 }
 
 .car-card-photo-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
   border: none;
   padding: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .car-card-photo-dot.active {
@@ -310,12 +312,12 @@
 }
 
 .car-city {
-  color: var(--color-success);
+  color: var(--color-violet);
   font-size: 0.875rem;
   font-weight: 600;
   margin: 10px 0 0;
   padding: 6px 12px;
-  background: var(--color-success-muted);
+  background: var(--color-violet-muted);
   border-radius: var(--radius-sm);
   display: inline-block;
 }
@@ -356,9 +358,9 @@
 }
 
 .cars-message-success {
-  background: var(--color-success);
+  background: var(--color-violet);
   color: white;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
 }
 
 .cars-message-error {
@@ -389,7 +391,7 @@
 .btn-add-to-cart:hover:not(:disabled) {
   background: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.35);
 }
 
 .btn-add-to-cart:active:not(:disabled) {
@@ -397,12 +399,12 @@
 }
 
 .btn-add-to-cart:disabled {
-  background: var(--color-success);
+  background: var(--color-violet);
   cursor: not-allowed;
   opacity: 0.9;
 }
 
 .btn-add-to-cart.in-cart {
-  background: var(--color-success);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  background: var(--color-violet);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
 }

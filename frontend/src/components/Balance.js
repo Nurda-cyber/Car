@@ -43,7 +43,7 @@ const Balance = ({ onNavigate }) => {
   return (
     <div className="balance-container">
       <div className="balance-header">
-        <h1>💰 {t('balance.title')}</h1>
+        <h1><i className="bi bi-coin" aria-hidden /> {t('balance.title')}</h1>
       </div>
 
       {error && <div className="balance-alert balance-alert-error">{error}</div>}
@@ -54,28 +54,28 @@ const Balance = ({ onNavigate }) => {
       ) : (
         <div className="balance-content">
           <div className="balance-card">
-            <div className="balance-icon">💰</div>
+            <div className="balance-icon"><i className="bi bi-coin" aria-hidden /></div>
             <div className="balance-amount">
               {formatBalance(balance)}
             </div>
             <div className="balance-label">{t('balance.yourBalance')}</div>
             <div className="balance-info">
               <p>{t('balance.useBalance')}</p>
-              <p className="balance-hint">💡 {t('balance.hintDeduct')}</p>
-              <p className="balance-hint">👤 {t('balance.hintIndividual')}</p>
+              <p className="balance-hint"><i className="bi bi-lightbulb-fill" aria-hidden /> {t('balance.hintDeduct')}</p>
+              <p className="balance-hint"><i className="bi bi-person-fill" aria-hidden /> {t('balance.hintIndividual')}</p>
             </div>
           </div>
 
           <div className="balance-stats">
             <div className="stat-item stat-item-clickable" onClick={() => onNavigate && onNavigate('cart')}>
-              <div className="stat-icon">🛒</div>
+              <div className="stat-icon"><i className="bi bi-cart-check-fill" aria-hidden /></div>
               <div className="stat-content">
                 <div className="stat-value">{t('balance.cartLink')}</div>
                 <div className="stat-label">{t('balance.goToPurchases')}</div>
               </div>
             </div>
             <div className="stat-item stat-item-clickable" onClick={() => onNavigate && onNavigate('profile')}>
-              <div className="stat-icon">📊</div>
+              <div className="stat-icon"><i className="bi bi-bar-chart-fill" aria-hidden /></div>
               <div className="stat-content">
                 <div className="stat-value">{t('balance.history')}</div>
                 <div className="stat-label">{t('balance.viewPurchases')}</div>
