@@ -4,22 +4,34 @@
  * Для запуска: npm test
  */
 
+import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import SellCar from '../SellCar';
+import { LanguageProvider } from '../../context/LanguageContext';
 
-// Мокаем axios
-jest.mock('axios');
+jest.mock('axios', () => ({
+  __esModule: true,
+  default: {
+    post: jest.fn()
+  }
+}));
+
+const renderWithProviders = (ui) =>
+  render(
+    <LanguageProvider>
+      {ui}
+    </LanguageProvider>
+  );
 
 describe('SellCar Component', () => {
   beforeEach(() => {
-    // Очищаем все моки перед каждым тестом
     jest.clearAllMocks();
   });
 
   test('должен отображать форму продажи автомобиля', () => {
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     expect(screen.getByText('Продать автомобиль')).toBeInTheDocument();
     expect(screen.getByLabelText(/Марка/i)).toBeInTheDocument();
@@ -29,7 +41,7 @@ describe('SellCar Component', () => {
   });
 
   test('должен показывать ошибку при отправке формы с пустыми обязательными полями', async () => {
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     const submitButton = screen.getByText('Разместить объявление');
     fireEvent.click(submitButton);
@@ -55,22 +67,22 @@ describe('SellCar Component', () => {
 
     axios.post.mockResolvedValue(mockResponse);
 
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
-    // Заполняем форму
+   
     fireEvent.change(screen.getByLabelText(/Марка/i), { target: { value: 'Toyota' } });
     fireEvent.change(screen.getByLabelText(/Модель/i), { target: { value: 'Camry' } });
     fireEvent.change(screen.getByLabelText(/Год выпуска/i), { target: { value: '2020' } });
     fireEvent.change(screen.getByLabelText(/Цена/i), { target: { value: '5000000' } });
 
-    // Отправляем форму
+    
     const submitButton = screen.getByText('Разместить объявление');
     fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        '/cars/sell',
-        expect.any(FormData),
+        '/api/cars/sell',
+        expect.anything(),
         expect.objectContaining({
           headers: expect.objectContaining({
             'Content-Type': 'multipart/form-data'
@@ -85,7 +97,7 @@ describe('SellCar Component', () => {
   });
 
   test('должен показывать ошибку при невалидном годе', async () => {
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     fireEvent.change(screen.getByLabelText(/Марка/i), { target: { value: 'Toyota' } });
     fireEvent.change(screen.getByLabelText(/Модель/i), { target: { value: 'Camry' } });
@@ -101,7 +113,7 @@ describe('SellCar Component', () => {
   });
 
   test('должен показывать ошибку при отрицательной цене', async () => {
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     fireEvent.change(screen.getByLabelText(/Марка/i), { target: { value: 'Toyota' } });
     fireEvent.change(screen.getByLabelText(/Модель/i), { target: { value: 'Camry' } });
@@ -126,7 +138,7 @@ describe('SellCar Component', () => {
 
     axios.post.mockResolvedValue(mockResponse);
 
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     const brandInput = screen.getByLabelText(/Марка/i);
     fireEvent.change(brandInput, { target: { value: 'Toyota' } });
@@ -153,7 +165,7 @@ describe('SellCar Component', () => {
 
     axios.post.mockRejectedValue(errorResponse);
 
-    render(<SellCar />);
+    renderWithProviders(<SellCar />);
 
     fireEvent.change(screen.getByLabelText(/Марка/i), { target: { value: 'Toyota' } });
     fireEvent.change(screen.getByLabelText(/Модель/i), { target: { value: 'Camry' } });

@@ -1,37 +1,20 @@
-/**
- * Тесты для функционала продажи автомобилей
- * 
- * Для запуска тестов:
- * 1. Установите зависимости: npm install --save-dev jest supertest
- * 2. Добавьте в package.json: "test": "jest"
- * 3. Запустите: npm test
- */
-
 const request = require('supertest');
 const express = require('express');
 const sequelize = require('../config/database');
 const Car = require('../models/Car');
 const User = require('../models/User');
 
-// Создаем тестовое приложение
+jest.mock('../middleware/auth', () => (req, res, next) => {
+  const id = process.env.TEST_USER_ID ? parseInt(process.env.TEST_USER_ID, 10) : 1;
+  req.user = { id };
+  next();
+});
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Импортируем роутер
 const carsRouter = require('../routes/cars');
-
-// Мокаем middleware auth
-const mockAuth = (req, res, next) => {
-  req.user = { id: 1 };
-  next();
-};
-
-// Применяем мок к роутеру
-const originalAuth = require('../middleware/auth');
-require.cache[require.resolve('../middleware/auth')] = {
-  exports: mockAuth
-};
 
 app.use('/api/cars', carsRouter);
 
@@ -41,16 +24,14 @@ describe('POST /api/cars/sell - Продажа автомобиля', () => {
   beforeAll(async () => {
     try {
       await sequelize.authenticate();
-      console.log('Тестовая БД подключена');
     } catch (error) {
       console.error('Ошибка подключения к БД:', error);
     }
   });
 
   beforeEach(async () => {
-    // Создаем тестового пользователя
     try {
-      testUser = await User.findOrCreate({
+      const [user] = await User.findOrCreate({
         where: { email: 'test-sell@example.com' },
         defaults: {
           name: 'Test Seller',
@@ -59,13 +40,14 @@ describe('POST /api/cars/sell - Продажа автомобиля', () => {
           balance: 10000000
         }
       });
+      testUser = user;
+      process.env.TEST_USER_ID = String(user.id);
     } catch (error) {
       console.error('Ошибка создания тестового пользователя:', error);
     }
   });
 
   afterEach(async () => {
-    // Очищаем тестовые данные
     try {
       await Car.destroy({ where: { sellerId: 1 }, force: true });
     } catch (error) {
@@ -105,14 +87,13 @@ describe('POST /api/cars/sell - Продажа автомобиля', () => {
     expect(response.body.car).toBeDefined();
     expect(response.body.car.brand).toBe('Toyota');
     expect(response.body.car.model).toBe('Camry');
-    expect(response.body.car.sellerId).toBe(1);
+    expect(response.body.car.sellerId).toBe(testUser.id);
     expect(response.body.car.status).toBe('pending');
   });
 
   test('должен вернуть ошибку при отсутствии обязательных полей', async () => {
     const carData = {
       brand: 'Toyota'
-      // отсутствуют model, year, price
     };
 
     const response = await request(app)
@@ -127,7 +108,7 @@ describe('POST /api/cars/sell - Продажа автомобиля', () => {
     const carData = {
       brand: 'Toyota',
       model: 'Camry',
-      year: '1800', // невалидный год
+      year: '1800',
       price: '5000000'
     };
 
@@ -144,7 +125,7 @@ describe('POST /api/cars/sell - Продажа автомобиля', () => {
       brand: 'Toyota',
       model: 'Camry',
       year: '2020',
-      price: '-1000' // отрицательная цена
+      price: '-1000'
     };
 
     const response = await request(app)

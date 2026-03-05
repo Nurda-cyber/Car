@@ -93,7 +93,7 @@ const SellCar = () => {
     }
 
     try {
-      // Создаем FormData для отправки файлов
+     
       const formDataToSend = new FormData();
       formDataToSend.append('brand', formData.brand);
       formDataToSend.append('model', formData.model);
